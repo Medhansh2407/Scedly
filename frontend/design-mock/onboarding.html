@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Set up your rhythm — scedly_</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="app.css" />
+<script src="theme.js"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="index.html"><span class="glyph"><span class="sun">☀</span><span class="moon">🌙</span></span><span class="wordmark">scedly<span class="cursor">_</span></span></a>
+    <div class="nav-actions">
+      <button class="theme-toggle" data-theme-toggle title="Toggle theme"><span class="i-sun">☀</span><span class="i-moon">🌙</span></button>
+      <a class="btn btn-ghost" href="app.html">Skip — use defaults</a>
+    </div>
+  </div>
+</nav>
+
+<div class="onb-shell">
+  <div class="steps"><i class="on"></i><i class="on"></i><i></i></div>
+
+  <span class="eyebrow">Step 2 of 3 · personalize</span>
+  <h2 class="mt-16">Let’s learn your rhythm.</h2>
+  <p class="lead mt-8">Scedly schedules around your energy, not a generic 9-to-5. You can change all of this later in settings or just by telling Scedly in chat.</p>
+
+  <!-- focus window -->
+  <div class="card mt-32">
+    <div class="row" style="justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <h3>When do you do your best focused work?</h3>
+        <p class="mt-8">High-energy tasks — deep work, writing, code — land here.</p>
+      </div>
+      <div class="row gap-8">
+        <input class="timeinput" value="06:00" /><span class="muted">→</span><input class="timeinput" value="12:00" />
+      </div>
+    </div>
+  </div>
+
+  <!-- light window -->
+  <div class="card mt-16">
+    <div class="row" style="justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <h3>When do you prefer lighter tasks?</h3>
+        <p class="mt-8">Errands, email, admin — low-energy work goes here.</p>
+      </div>
+      <div class="row gap-8">
+        <input class="timeinput" value="16:00" /><span class="muted">→</span><input class="timeinput" value="20:00" />
+      </div>
+    </div>
+  </div>
+
+  <!-- working window -->
+  <div class="card mt-16">
+    <div class="row" style="justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <h3>Your working window</h3>
+        <p class="mt-8">Scedly only schedules inside this range — unless you ask otherwise.</p>
+      </div>
+      <div class="row gap-8">
+        <input class="timeinput" value="09:00" /><span class="muted">→</span><input class="timeinput" value="22:00" />
+      </div>
+    </div>
+  </div>
+
+  <!-- outside-window comfort -->
+  <div class="mt-32">
+    <h3>How comfortable are you with tasks outside your working window?</h3>
+    <p class="mt-8 muted">Used only when a deadline is tight and nothing else fits.</p>
+    <div class="stack gap-12 mt-16">
+      <label class="opt"><span class="radio"></span><div><strong>Never</strong> <span class="muted">— the boundary is sacred.</span></div></label>
+      <label class="opt"><span class="radio"></span><div><strong>Only in emergencies</strong> <span class="muted">— deadline within 24 hours.</span></div></label>
+      <label class="opt sel"><span class="radio"></span><div><strong>If it’s tight</strong> <span class="muted">— deadline within 48 hours. (recommended)</span></div></label>
+      <label class="opt"><span class="radio"></span><div><strong>I’m flexible</strong> <span class="muted">— deadline within 7 days.</span></div></label>
+    </div>
+  </div>
+
+  <div class="row gap-12 mt-32" style="justify-content:flex-end;">
+    <a class="btn btn-ghost" href="app.html">Skip — use defaults</a>
+    <a class="btn btn-primary" href="app.html">Finish setup →</a>
+  </div>
+</div>
+
+</body>
+</html>

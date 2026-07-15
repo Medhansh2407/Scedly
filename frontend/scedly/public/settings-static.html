@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings — scedly_</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="app.css" />
+<script src="theme.js"></script>
+</head>
+<body>
+
+<header class="app-top">
+  <div class="left">
+    <a class="logo" href="index.html"><span class="glyph"><span class="sun">☀</span><span class="moon">🌙</span></span><span class="wordmark">scedly<span class="cursor">_</span></span></a>
+    <nav class="app-nav">
+      <a href="app.html">workspace</a>
+      <a href="settings.html" class="active">settings</a>
+    </nav>
+  </div>
+  <div class="right">
+    <span class="badge tag-low"><span class="dot dot-low"></span>Pro trial · 9 days left</span>
+    <button class="theme-toggle" data-theme-toggle title="Toggle theme"><span class="i-sun">☀</span><span class="i-moon">🌙</span></button>
+    <div class="avatar">MK</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="settings-shell">
+
+    <!-- side nav -->
+    <nav class="set-nav" data-tabs="set">
+      <button data-tab="prefs" class="active">⏱ Preferences</button>
+      <button data-tab="hours">◷ Working hours</button>
+      <button data-tab="intg">🔌 Integrations</button>
+      <button data-tab="keys">🔑 API keys</button>
+      <button data-tab="account">👤 Account</button>
+      <button data-tab="billing">✦ Billing</button>
+    </nav>
+
+    <!-- panels -->
+    <main>
+
+      <!-- PREFERENCES -->
+      <section data-panel="set" data-tab-panel="prefs">
+        <h2>Preferences</h2>
+        <p class="muted mt-8">How Scedly schedules around your energy.</p>
+        <div class="card mt-24">
+          <div class="set-row">
+            <div class="info"><h4>Best focus window</h4><p>High-energy tasks are placed here.</p></div>
+            <div class="row gap-8"><input class="timeinput" value="06:00"/><span class="muted">→</span><input class="timeinput" value="12:00"/></div>
+          </div>
+          <div class="set-row">
+            <div class="info"><h4>Light-task window</h4><p>Errands, email and admin go here.</p></div>
+            <div class="row gap-8"><input class="timeinput" value="16:00"/><span class="muted">→</span><input class="timeinput" value="20:00"/></div>
+          </div>
+          <div class="set-row">
+            <div class="info"><h4>30-min recovery buffers</h4><p>Insert breaks between back-to-back high-energy tasks.</p></div>
+            <span class="switch on"></span>
+          </div>
+          <div class="set-row">
+            <div class="info"><h4>Theme</h4><p>Default is dark. Follows your system on first visit.</p></div>
+            <button class="btn btn-ghost" data-theme-toggle>Toggle dark / light</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- WORKING HOURS -->
+      <section data-panel="set" data-tab-panel="hours" style="display:none;">
+        <h2>Working hours</h2>
+        <p class="muted mt-8">Scedly only schedules inside these unless you explicitly ask otherwise.</p>
+        <div class="card mt-24">
+          <div class="set-row">
+            <div class="info"><h4>Working window</h4><p>Your default daily schedulable range.</p></div>
+            <div class="row gap-8"><input class="timeinput" value="09:00"/><span class="muted">→</span><input class="timeinput" value="22:00"/></div>
+          </div>
+          <div class="set-row">
+            <div class="info"><h4>Focus hours</h4><p>Reserve a window for High/Medium priority only.</p></div>
+            <div class="row gap-8"><span class="switch on"></span><input class="timeinput" value="09:00"/><span class="muted">→</span><input class="timeinput" value="11:00"/></div>
+          </div>
+          <div class="set-row">
+            <div class="info"><h4>Outside-window comfort</h4><p>When deadlines are tight.</p></div>
+            <select class="input"><option>Never</option><option>Only in emergencies (24h)</option><option selected>If it’s tight (48h)</option><option>I’m flexible (7 days)</option></select>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTEGRATIONS -->
+      <section data-panel="set" data-tab-panel="intg" style="display:none;">
+        <h2>Integrations</h2>
+        <p class="muted mt-8">One brain, every surface. <span class="tag-med mono" style="font-size:.78rem;">Pro</span> unlocks channels &amp; sync.</p>
+        <div class="card mt-24">
+          <div class="set-row"><div class="intg"><span class="ic">📅</span><div class="info"><h4>Google Calendar</h4><p>Two-way sync. External events become blocked time.</p></div></div><button class="btn btn-outline">Connect</button></div>
+          <div class="set-row"><div class="intg"><span class="ic">📆</span><div class="info"><h4>Outlook Calendar</h4><p>Two-way sync via Microsoft Graph.</p></div></div><button class="btn btn-outline">Connect</button></div>
+          <div class="set-row"><div class="intg"><span class="ic">💬</span><div class="info"><h4>Slack</h4><p>Schedule from any channel or DM.</p></div></div><button class="btn btn-outline">Connect</button></div>
+          <div class="set-row"><div class="intg"><span class="ic">✈️</span><div class="info"><h4>Telegram</h4><p>Link with a one-time code.</p></div></div><button class="btn btn-outline">Connect</button></div>
+          <div class="set-row"><div class="intg"><span class="ic">🗨️</span><div class="info"><h4>Google Chat</h4><p>Workspace bot with slash commands.</p></div></div><button class="btn btn-outline">Connect</button></div>
+          <div class="set-row"><div class="intg"><span class="ic">✉️</span><div class="info"><h4>Email summaries</h4><p>Daily schedule + deadline reminders. Off by default.</p></div></div><span class="switch"></span></div>
+        </div>
+      </section>
+
+      <!-- API KEYS -->
+      <section data-panel="set" data-tab-panel="keys" style="display:none;">
+        <h2>API keys</h2>
+        <p class="muted mt-8">For the CLI and MCP server. Keys are user-scoped and revocable.</p>
+        <div class="card mt-24">
+          <div class="keyrow"><span><span class="muted">cli · </span><span class="k">sk-live-••••••••••••3f9a</span></span><div class="row gap-8"><span class="badge mono">created Jun 10</span><button class="btn btn-ghost">Revoke</button></div></div>
+          <div class="keyrow mt-16"><span><span class="muted">mcp · </span><span class="k">sk-live-••••••••••••a17c</span></span><div class="row gap-8"><span class="badge mono">created Jun 06</span><button class="btn btn-ghost">Revoke</button></div></div>
+          <button class="btn btn-primary mt-24">+ Generate new key</button>
+          <div class="term mt-24"><div class="term-body" style="padding:12px 14px;font-size:.82rem;">
+            <span class="term-comment"># install the terminal client</span><br>
+            <span class="term-prompt">$</span> <span class="term-user">pip install scedly</span><br>
+            <span class="term-prompt">$</span> <span class="term-user">scedly login</span> <span class="term-comment"># paste your key</span>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ACCOUNT -->
+      <section data-panel="set" data-tab-panel="account" style="display:none;">
+        <h2>Account</h2>
+        <div class="card mt-24">
+          <div class="set-row"><div class="row gap-16"><div class="avatar" style="width:44px;height:44px;border-radius:11px;">MK</div><div class="info"><h4>Medhansh K.</h4><p>medhansh@example.com · Google + GitHub linked</p></div></div></div>
+          <div class="set-row"><div class="info"><h4>Timezone</h4><p>Used for your working window &amp; “done this week”.</p></div><select class="input"><option>Asia/Kolkata (GMT+5:30)</option><option>America/New_York</option><option>Europe/London</option></select></div>
+          <div class="set-row"><div class="info"><h4>Sign out</h4><p>Clears your session on this device.</p></div><a class="btn btn-ghost" href="index.html">Sign out</a></div>
+          <div class="set-row"><div class="info"><h4 style="color:var(--danger)">Delete account</h4><p>Permanently removes your tasks, history &amp; memory.</p></div><button class="btn btn-outline" style="border-color:var(--danger);color:var(--danger);">Delete</button></div>
+        </div>
+      </section>
+
+      <!-- BILLING -->
+      <section data-panel="set" data-tab-panel="billing" style="display:none;">
+        <h2>Billing</h2>
+        <p class="muted mt-8">You’re on the <strong style="color:var(--text)">14-day Pro trial</strong> — 9 days left. No card on file.</p>
+
+        <div class="card mt-24" style="border-color:var(--accent);">
+          <div class="row" style="justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div>
+              <h3 class="mono">Pro trial <span class="badge tag-low" style="font-size:.68rem;">active</span></h3>
+              <p class="mt-8" style="font-size:.9rem;">All Pro features unlocked — unlimited tasks, every channel, calendar sync, email &amp; coaching.</p>
+            </div>
+            <div class="center">
+              <div class="pixel" style="font-size:1.6rem;color:var(--accent);">9</div>
+              <div class="mono faint" style="font-size:.7rem;">days left</div>
+            </div>
+          </div>
+          <div class="prog mt-16"><i style="width:36%"></i></div>
+          <p class="mono faint mt-8" style="font-size:.76rem;">Trial started Jun 6 · ends Jun 20. After that you’ll move to the Free plan automatically — you won’t be charged.</p>
+        </div>
+
+        <div class="grid grid-2 mt-24">
+          <div class="card">
+            <h3 class="mono">Continue on Pro</h3>
+            <div class="row gap-8" style="align-items:baseline;margin-top:8px;"><span style="font-size:2rem;font-weight:800;">$9</span><span class="muted">/mo</span></div>
+            <p class="mt-8" style="font-size:.85rem;">Keep everything you have now. Billed monthly via Stripe.</p>
+            <button class="btn btn-primary btn-block mt-16">Subscribe — $9/mo</button>
+          </div>
+          <div class="card">
+            <h3 class="mono">Save with yearly</h3>
+            <div class="row gap-8" style="align-items:baseline;margin-top:8px;"><span style="font-size:2rem;font-weight:800;">$96</span><span class="muted">/yr</span></div>
+            <p class="mt-8" style="font-size:.85rem;">Two months free vs monthly. Billed annually via Stripe.</p>
+            <button class="btn btn-outline btn-block mt-16">Subscribe — $96/yr</button>
+          </div>
+        </div>
+
+        <div class="set-row mt-16" style="border-top:1px solid var(--border);">
+          <div class="info"><h4>Manage payment &amp; invoices</h4><p>Opens the secure Stripe customer portal.</p></div>
+          <button class="btn btn-ghost">Open billing portal ↗</button>
+        </div>
+
+        <p class="mono faint mt-16" style="font-size:.78rem;">🔒 Payments are processed by Stripe — we never store your card. Cancel anytime; you keep Pro until the period ends, then roll to Free.</p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

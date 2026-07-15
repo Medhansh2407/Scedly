@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "scheduler": {
+      "command": "C:\\Users\\Medhansh\\Desktop\\Startups\\startup_calendar_app\\backend\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "app.mcp_server"],
+      "cwd": "C:\\Users\\Medhansh\\Desktop\\Startups\\startup_calendar_app\\backend",
+      "env": {
+        "SCHEDULER_API_KEY": "sk-ga_uuAuc5Cv65gvu24olC3IcymbKfWqKE29X-hn1DZg"
+      }
+    }
+  }
+}

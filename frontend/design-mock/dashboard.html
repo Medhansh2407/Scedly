@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>scedly — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Dark theme (default) */
+    --bg: #0F1117;
+    --card: #1A1D27;
+    --card-border: #2A2D37;
+    --terminal-bg: #0D1017;
+    --accent-cyan: #4FC3F7;
+    --accent-orange: #FF8A65;
+    --text-primary: #FFFFFF;
+    --text-secondary: #9CA3AF;
+    --text-tertiary: #6B7280;
+    --card-shadow: none;
+    --pill-bg: #20242F;
+    --high: #F87171;
+    --medium: #FF8A65;
+    --low: #4FC3F7;
+  }
+
+  [data-theme="light"] {
+    --bg: #FAFBFC;
+    --card: #FFFFFF;
+    --card-border: #E5E7EB;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    --card-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    --pill-bg: #F3F4F6;
+    /* terminal + input bar stay dark always */
+    --terminal-bg: #0D1017;
+    --accent-cyan: #4FC3F7;
+    --accent-orange: #FF8A65;
+    --high: #F87171;
+    --medium: #FF8A65;
+    --low: #4FC3F7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ===== Nav ===== */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--card-border);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent-orange), #FFB74D);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.15s ease;
+  }
+
+  .nav-links a.active { color: var(--text-primary); }
+  .nav-links a:hover { color: var(--text-primary); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    transition: border-color 0.15s ease;
+  }
+  .theme-toggle:hover { border-color: var(--accent-cyan); }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: #0F1117;
+  }
+
+  /* ===== Main layout ===== */
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 920px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  .page-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .page-header .date {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ===== Card base ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+  }
+
+  /* ===== Chat panel ===== */
+  .chat-panel {
+    display: flex;
+    flex-direction: column;
+    height: 620px;
+  }
+
+  .panel-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .panel-header .badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #4ADE80;
+    padding: 4px 10px;
+    border: 1px solid #2A2D37;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ADE80;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .msg-row { display: flex; flex-direction: column; gap: 6px; }
+  .msg-row.user { align-items: flex-end; }
+  .msg-row.ai { align-items: flex-start; }
+
+  .msg-bubble {
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+
+  .msg-row.user .msg-bubble {
+    background: var(--pill-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+
+  .msg-row.ai .msg-bubble {
+    padding: 0;
+  }
+
+  .ai-prefix {
+    color: var(--accent-cyan);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+
+  .msg-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 0 4px;
+  }
+
+  .highlight {
+    color: var(--accent-cyan);
+    font-weight: 600;
+  }
+
+  /* ===== Terminal input bar ===== */
+  .input-bar-wrap {
+    border-top: 1px solid var(--card-border);
+    padding: 16px 20px;
+    background: var(--terminal-bg);
+    border-radius: 0 0 12px 12px;
+  }
+
+  .input-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+
+  .prompt-label {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .input-bar input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #E5E7EB;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    caret-color: var(--accent-cyan);
+  }
+
+  .input-bar input::placeholder {
+    color: #4B5563;
+  }
+
+  .cursor-block {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: var(--accent-cyan);
+    animation: blink 1.1s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ===== Calendar panel ===== */
+  .calendar-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .calendar-card { padding: 20px; }
+
+  .calendar-card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+  }
+
+  .time-block {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--block-color, var(--accent-cyan));
+    background: var(--card);
+    position: relative;
+  }
+
+  .time-block.high { --block-color: var(--high); }
+  .time-block.medium { --block-color: var(--medium); }
+  .time-block.low { --block-color: var(--low); }
+
+  .time-col {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    padding-top: 1px;
+    min-width: 78px;
+  }
+
+  .task-col { flex: 1; }
+
+  .task-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+
+  .task-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  .now-line {
+    position: relative;
+    height: 0;
+    margin: 2px 0;
+  }
+
+  .now-line::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: var(--accent-cyan);
+    box-shadow: 0 0 8px var(--accent-cyan), 0 0 16px rgba(79, 195, 247, 0.4);
+    border-radius: 1px;
+  }
+
+  .now-label {
+    position: absolute;
+    left: 0;
+    top: -8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-cyan);
+    background: var(--bg);
+    padding: 0 6px 0 0;
+  }
+
+  /* ===== Nudge card ===== */
+  .nudge-card {
+    padding: 18px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(79, 195, 247, 0.35);
+    background: var(--card);
+    box-shadow: 0 0 0 1px rgba(79, 195, 247, 0.06), 0 0 24px rgba(79, 195, 247, 0.10);
+    position: relative;
+  }
+
+  .nudge-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .nudge-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    background: rgba(79, 195, 247, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+
+  .nudge-body {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .nudge-body strong { color: var(--text-primary); font-weight: 600; }
+
+  .nudge-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 9px 16px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: opacity 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--accent-cyan);
+    color: #0F1117;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+  }
+  .btn-ghost:hover { border-color: var(--text-secondary); }
+
+  /* ===== Stats row ===== */
+  .stats-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .stat-card {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <span class="logo-icon">🌙</span>
+    scedly
+  </div>
+  <div class="nav-links">
+    <a href="#" class="active">Dashboard</a>
+    <a href="#">Tasks</a>
+    <a href="#">Channels</a>
+    <a href="#">Settings</a>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+    <div class="avatar">JD</div>
+  </div>
+</nav>
+
+<main>
+
+  <div class="page-header">
+    <h1>Today</h1>
+    <div class="date mono">Sat, Jun 13 — 12:38 AM</div>
+  </div>
+
+  <!-- Chat panel -->
+  <div class="card chat-panel">
+    <div class="panel-header">
+      <h2>Chat with scedly</h2>
+      <div class="badge"><span class="badge-dot"></span> Connected</div>
+    </div>
+
+    <div class="chat-messages">
+
+      <div class="msg-row user">
+        <div class="msg-bubble">draft the investor update, 2h, due friday</div>
+        <div class="msg-meta">12:31 AM</div>
+      </div>
+
+      <div class="msg-row ai">
+        <div class="msg-bubble">
+          <span class="ai-prefix">scedly&gt;</span>Scheduled <span class="highlight">"Investor update"</span> for Thu 09:00–11:00 — placed in your morning focus block with a full day of buffer before the deadline.
+        </div>
+        <div class="msg-meta">12:31 AM · 0.8s</div>
+      </div>
+
+      <div class="msg-row user">
+        <div class="msg-bubble">can you move standup notes earlier? I have a call at 1:30</div>
+        <div class="msg-meta">12:35 AM</div>
+      </div>
+
+      <div class="msg-row ai">
+        <div class="msg-bubble">
+          <span class="ai-prefix">scedly&gt;</span>Done — moved <span class="highlight">"Standup notes"</span> to 11:15–11:30, right after the investor update block. Your 1:30 call is clear.
+        </div>
+        <div class="msg-meta">12:35 AM · 0.6s</div>
+      </div>
+
+      <div class="msg-row user">
+        <div class="msg-bubble">also add a task to review PR #482 sometime this afternoon</div>
+        <div class="msg-meta">12:37 AM</div>
+      </div>
+
+      <div class="msg-row ai">
+        <div class="msg-bubble">
+          <span class="ai-prefix">scedly&gt;</span>Added <span class="highlight">"Review PR #482"</span> at 15:00–15:45, low priority. Want me to ping you 10 minutes before it starts?
+        </div>
+        <div class="msg-meta">12:37 AM · 0.7s</div>
+      </div>
+
+    </div>
+
+    <div class="input-bar-wrap">
+      <div class="input-bar">
+        <span class="prompt-label">scedly&gt;</span>
+        <input type="text" placeholder="Ask scedly to schedule, move, or check something…" />
+        <span class="cursor-block"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar panel -->
+  <div class="calendar-panel">
+
+    <div class="card nudge-card">
+      <div class="nudge-eyebrow">
+        <span class="nudge-icon">✦</span> Scheduling nudge
+      </div>
+      <div class="nudge-body">
+        You've got a <strong>90-minute gap</strong> before your investor update at 09:00. Want to block that time as deep focus so nothing else slips into it?
+      </div>
+      <div class="nudge-actions">
+        <button class="btn btn-primary">Add focus block</button>
+        <button class="btn btn-ghost">Dismiss</button>
+      </div>
+    </div>
+
+    <div class="card calendar-card">
+      <h2>Today's schedule</h2>
+      <div class="schedule-list">
+
+        <div class="now-line">
+          <span class="now-label">NOW · 12:38</span>
+        </div>
+
+        <div class="time-block high">
+          <div class="time-col">09:00–11:00</div>
+          <div class="task-col">
+            <div class="task-title">Investor update</div>
+            <div class="task-sub">120min · High priority</div>
+          </div>
+        </div>
+
+        <div class="time-block medium">
+          <div class="time-col">11:15–11:30</div>
+          <div class="task-col">
+            <div class="task-title">Standup notes</div>
+            <div class="task-sub">15min · Medium priority</div>
+          </div>
+        </div>
+
+        <div class="time-block low">
+          <div class="time-col">15:00–15:45</div>
+          <div class="task-col">
+            <div class="task-title">Review PR #482</div>
+            <div class="task-sub">45min · Low priority</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="card stat-card">
+        <div class="stat-num">3</div>
+        <div class="stat-label mono">Blocks</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-num">2.5h</div>
+        <div class="stat-label mono">Focus time</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-num">1</div>
+        <div class="stat-label mono">Nudge</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  const toggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  toggle.addEventListener('click', () => {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    toggle.textContent = isDark ? '☀️' : '🌙';
+  });
+</script>
+
+</body>
+</html>

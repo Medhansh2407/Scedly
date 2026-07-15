@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scedly — Polished Dashboard v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0F1117;--surface:#1A1D27;--border:#2A2D37;--border-h:#3A3D47;--terminal:#0D1017;
+  --cyan:#4FC3F7;--amber:#FFCA28;--red:#EF5350;--green:#66BB6A;--orange:#FF8A65;
+  --t1:#FFFFFF;--t2:#9CA3AF;--t3:#6B7280;
+  --sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* NAV */
+nav{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.nl{display:flex;align-items:center;gap:20px}
+.logo{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--cyan);transition:opacity .15s;cursor:default}.logo:hover{opacity:.8}
+.nlinks{display:flex;gap:2px}
+.nlinks a{padding:6px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--t3);text-decoration:none;transition:all .15s}
+.nlinks a:hover{color:var(--t1);background:rgba(255,255,255,.04)}
+.nlinks a.on{color:var(--t1);background:rgba(255,255,255,.06)}
+.nr{display:flex;align-items:center;gap:10px}
+.badge{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid rgba(102,187,106,.3);font-size:11px;font-weight:500;color:var(--green)}
+.badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px rgba(102,187,106,.6)}
+.av{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--cyan),#7C4DFF);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+
+/* MAIN */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* CALENDAR */
+.cal{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.tb{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
+.tbl{display:flex;align-items:center;gap:12px}
+.tb-nav{display:flex;gap:3px}
+.tb-nav button{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--t3);font-size:15px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.tb-nav button:hover{border-color:var(--border-h);color:var(--t1);background:rgba(255,255,255,.03)}
+.tb-today{padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--t1);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.tb-today:hover{background:rgba(79,195,247,.06);border-color:rgba(79,195,247,.25)}
+.tb-period{font-size:15px;font-weight:650;letter-spacing:-.3px}
+.vtabs{display:flex;background:var(--bg);border-radius:9px;padding:3px;gap:1px}
+.vtabs button{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;border:none;cursor:pointer;color:var(--t3);background:transparent;transition:all .2s}
+.vtabs button:hover{color:var(--t2)}
+.vtabs button.on{background:var(--cyan);color:#000;font-weight:600;box-shadow:0 2px 8px rgba(79,195,247,.2)}
+
+/* DAY */
+.dv{flex:1;display:flex;overflow-y:auto;padding-top:4px}
+.gutter{width:52px;flex-shrink:0}
+.gutter .h{height:66px;display:flex;align-items:flex-start;justify-content:flex-end;padding:1px 10px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--t3);opacity:.6;user-select:none}
+.canvas{flex:1;position:relative;border-left:1px solid var(--border)}
+.hl{position:absolute;left:0;right:0;height:1px;background:var(--border);opacity:.35}
+
+/* EVENTS */
+.ev{position:absolute;left:8px;right:8px;border-radius:9px;padding:9px 13px;cursor:pointer;transition:all .18s ease;border:1px solid transparent;overflow:hidden}
+.ev:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.4),0 0 0 1px var(--border-h);z-index:5}
+.ev.hi{background:linear-gradient(135deg,rgba(239,83,80,.13),rgba(239,83,80,.02));border-left:3px solid var(--red)}
+.ev.md{background:linear-gradient(135deg,rgba(255,202,40,.11),rgba(255,202,40,.02));border-left:3px solid var(--amber)}
+.ev.lo{background:linear-gradient(135deg,rgba(102,187,106,.11),rgba(102,187,106,.02));border-left:3px solid var(--green)}
+.ev.brk{background:rgba(255,255,255,.012);border-left:3px solid var(--border)}
+.ev.dn{opacity:.3}.ev.dn .evt{text-decoration:line-through;color:var(--t2)}
+.evt{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evm{font-family:var(--mono);font-size:10px;color:var(--t3);opacity:.7}
+.evchk{position:absolute;top:9px;right:10px;width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border-h);opacity:0;transition:opacity .18s;display:flex;align-items:center;justify-content:center;font-size:9px}
+.ev:hover .evchk{opacity:1}
+.evchk.dn{opacity:1;border-color:var(--green);color:var(--green);background:rgba(102,187,106,.1)}
+.evprog{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.025);overflow:hidden}
+.evprog i{display:block;height:100%}
+
+/* NOW */
+.now{position:absolute;left:-5px;right:0;display:flex;align-items:center;z-index:10;pointer-events:none}
+.nowd{width:11px;height:11px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan),0 0 14px rgba(79,195,247,.3);flex-shrink:0;animation:glo 2s ease-in-out infinite}
+@keyframes glo{0%,100%{transform:scale(1);box-shadow:0 0 6px var(--cyan),0 0 14px rgba(79,195,247,.3)}50%{transform:scale(1.15);box-shadow:0 0 10px var(--cyan),0 0 22px rgba(79,195,247,.45)}}
+.nowr{flex:1;height:2px;background:linear-gradient(to right,var(--cyan),rgba(79,195,247,.1) 70%,transparent)}
+.nowt{position:absolute;right:8px;font-family:var(--mono);font-size:10px;color:var(--cyan);background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid rgba(79,195,247,.15)}
+
+/* CHAT */
+.chat{width:360px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface)}
+.ch-h{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border)}
+.ch-hl{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--t2)}
+.ch-hl em{font-style:normal;font-size:15px}
+.ch-col{font-size:11px;color:var(--t3);cursor:pointer;transition:color .15s}.ch-col:hover{color:var(--t1)}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+
+.mu{display:flex;justify-content:flex-end}
+.mu .b{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px 14px 4px 14px;padding:8px 14px;font-family:var(--mono);font-size:12px;color:var(--t2);max-width:88%;line-height:1.4}
+.ma{display:flex;flex-direction:column;gap:4px}
+.ma-l{font-family:var(--mono);font-size:11px;color:var(--cyan);font-weight:500}
+.ma-t{font-size:13px;color:var(--t2);line-height:1.55}.ma-t strong{color:var(--t1);font-weight:500}
+.ma-m{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:1px}
+
+.ndg{background:rgba(255,202,40,.03);border:1px solid rgba(255,202,40,.3);border-radius:11px;padding:13px;box-shadow:0 0 20px rgba(255,202,40,.04)}
+.ndg-h{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-bottom:7px}
+.ndg-b{font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:11px}.ndg-b strong{color:var(--t1)}
+.ndg-a{display:flex;gap:6px;flex-wrap:wrap}
+.ndg-a button{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--t1)}
+.ndg-a button:hover{border-color:var(--border-h)}
+.ndg-a .p{background:var(--amber);color:#000;border-color:var(--amber)}.ndg-a .p:hover{opacity:.85}
+.ndg-a .d{color:var(--t3);border-color:transparent}.ndg-a .d:hover{color:var(--t2)}
+
+.ch-in{padding:12px;border-top:1px solid var(--border);background:var(--terminal)}
+.ch-ii{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;transition:all .2s}
+.ch-ii:focus-within{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(79,195,247,.07)}
+.ch-pr{font-family:var(--mono);font-size:12px;color:var(--cyan);font-weight:500}
+.ch-i{flex:1;background:transparent;border:none;outline:none;font-family:var(--mono);font-size:12px;color:var(--t1)}.ch-i::placeholder{color:var(--t3)}
+.ch-s{padding:4px 10px;border-radius:6px;background:var(--cyan);color:#000;border:none;font-size:11px;font-weight:700;cursor:pointer;opacity:.85;transition:all .15s}.ch-s:hover{opacity:1;box-shadow:0 2px 6px rgba(79,195,247,.25)}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nl">
+    <div class="logo"><span>🌙</span> scedly</div>
+    <div class="nlinks"><a href="#" class="on">workspace</a><a href="#">settings</a></div>
+  </div>
+  <div class="nr">
+    <div class="badge">Pro trial · 9 days left</div>
+    <div class="av">MK</div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="cal">
+    <div class="tb">
+      <div class="tbl">
+        <div class="tb-nav"><button>‹</button><button>›</button></div>
+        <button class="tb-today">Today</button>
+        <span class="tb-period">Saturday, June 13</span>
+      </div>
+      <div class="vtabs">
+        <button class="on">Day</button><button>Week</button><button>Month</button>
+      </div>
+    </div>
+
+    <div class="dv">
+      <div class="gutter">
+        <div class="h">08:00</div><div class="h">09:00</div><div class="h">10:00</div>
+        <div class="h">11:00</div><div class="h">12:00</div><div class="h">13:00</div>
+        <div class="h">14:00</div><div class="h">15:00</div><div class="h">16:00</div>
+        <div class="h">17:00</div><div class="h">18:00</div><div class="h">19:00</div>
+        <div class="h">20:00</div>
+      </div>
+      <div class="canvas">
+        <div class="hl" style="top:0"></div><div class="hl" style="top:66px"></div>
+        <div class="hl" style="top:132px"></div><div class="hl" style="top:198px"></div>
+        <div class="hl" style="top:264px"></div><div class="hl" style="top:330px"></div>
+        <div class="hl" style="top:396px"></div><div class="hl" style="top:462px"></div>
+        <div class="hl" style="top:528px"></div><div class="hl" style="top:594px"></div>
+        <div class="hl" style="top:660px"></div><div class="hl" style="top:726px"></div>
+        <div class="hl" style="top:792px"></div>
+
+        <!-- 09:30–10:30 Coding session (High) → top: 1.5h*66=99, h:66 -->
+        <div class="ev hi" style="top:101px;height:62px;">
+          <span class="evchk"></span>
+          <div class="evt">Coding session</div>
+          <div class="evm">09:30–10:30 · 1h · High</div>
+          <div class="evprog"><i style="width:60%;background:linear-gradient(to right,var(--red),rgba(239,83,80,.3))"></i></div>
+        </div>
+
+        <!-- 11:00–11:30 Reply to design feedback (Low, done) → top: 3h*66=198, h:33 -->
+        <div class="ev lo dn" style="top:200px;height:30px;">
+          <span class="evchk dn">✓</span>
+          <div class="evt">Reply to design feedback</div>
+        </div>
+
+        <!-- 12:00–13:00 Lunch → top:264, h:66 -->
+        <div class="ev brk" style="top:266px;height:62px;">
+          <div class="evt" style="color:var(--t3);font-weight:500">Lunch</div>
+          <div class="evm">12:00–13:00 · break</div>
+        </div>
+
+        <!-- NOW @ 14:10 → 6.17h*66=407 -->
+        <div class="now" style="top:407px;">
+          <div class="nowd"></div>
+          <div class="nowr"></div>
+          <span class="nowt">14:10</span>
+        </div>
+
+        <!-- 14:00–14:45 Client call prep (Medium) → top: 6h*66=396, h:49.5≈50 -->
+        <div class="ev md" style="top:398px;height:47px;">
+          <span class="evchk"></span>
+          <div class="evt">Client call prep</div>
+          <div class="evm">14:00–14:45 · 45m · Medium</div>
+        </div>
+
+        <!-- 15:00–15:30 Walk session (Low) → top: 7h*66=462, h:33 -->
+        <div class="ev lo" style="top:464px;height:30px;">
+          <span class="evchk"></span>
+          <div class="evt">Walk session</div>
+          <div class="evm">15:00–15:30 · 30m · Low energy</div>
+        </div>
+
+        <!-- 16:00–17:30 Deep work: API integration (High) → top:528, h:99 -->
+        <div class="ev hi" style="top:530px;height:95px;">
+          <span class="evchk"></span>
+          <div class="evt">Deep work: API integration</div>
+          <div class="evm">16:00–17:30 · 1.5h · High</div>
+        </div>
+
+        <!-- 18:30–19:30 Gym (Low) → top:693, h:66 -->
+        <div class="ev lo" style="top:695px;height:62px;">
+          <span class="evchk"></span>
+          <div class="evt">Gym</div>
+          <div class="evm">18:30–19:30 · 1h · Low energy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat">
+    <div class="ch-h">
+      <div class="ch-hl"><em>💬</em> Chat with Scedly</div>
+      <span class="ch-col">collapse ›</span>
+    </div>
+    <div class="msgs">
+      <div class="ma">
+        <span class="ma-l">scedly&gt;</span>
+        <div class="ma-t">Hey! I'm Scedly. Tell me what you need to get done and I'll schedule it for you.</div>
+        <div class="ma-m">↳ Try: "schedule a 2h deep work session tomorrow morning"</div>
+      </div>
+
+      <div class="mu"><div class="b">schedule coding session tomorrow 9:30, 1 hour, high priority</div></div>
+
+      <div class="ma">
+        <span class="ma-l">scedly&gt;</span>
+        <div class="ma-t">✓ Scheduled <strong>"Coding session"</strong> → Sat 09:30–10:30</div>
+        <div class="ma-m">↳ High-focus work placed in morning peak. No conflicts.</div>
+      </div>
+
+      <div class="mu"><div class="b">change walk to low priority</div></div>
+
+      <div class="ma">
+        <span class="ma-l">scedly&gt;</span>
+        <div class="ma-t">✅ Updated <strong>'Walk session'</strong> — priority set to Low.</div>
+        <div class="ma-m">↳ Moved to afternoon slot (low-energy window).</div>
+      </div>
+
+      <div class="mu"><div class="b">add gym thursday next week</div></div>
+
+      <div class="ndg">
+        <div class="ndg-h">💡 Behavioral nudge</div>
+        <div class="ndg-b">You've skipped <strong>gym on Thursdays</strong> 4 of the last 5 weeks. Want me to move it to <strong>Wednesday 18:00</strong> instead?</div>
+        <div class="ndg-a">
+          <button class="p">Move to Wed</button>
+          <button>Keep Thursday</button>
+          <button class="d">Don't ask again</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ch-in">
+      <div class="ch-ii">
+        <span class="ch-pr">scedly&gt;</span>
+        <input class="ch-i" placeholder="schedule something, or ask why…">
+        <button class="ch-s">send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

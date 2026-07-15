@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scedly — Dashboard Redesign</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0F1117;
+  --surface: #1A1D27;
+  --border: #2A2D37;
+  --border-hover: #3A3D47;
+  --cyan: #4FC3F7;
+  --orange: #FF8A65;
+  --amber: #FFCA28;
+  --red: #EF5350;
+  --green: #66BB6A;
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --terminal-bg: #0D1017;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.nav-left { display: flex; align-items: center; gap: 24px; }
+.logo { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-weight: 600; font-size: 16px; }
+.logo-icon { font-size: 20px; }
+.nav-links { display: flex; gap: 8px; }
+.nav-links a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.nav-links a:hover { color: var(--text-primary); background: var(--surface); }
+.nav-links a.active { color: var(--text-primary); background: var(--surface); }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.trial-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid #2D4A3E;
+  font-size: 12px;
+  color: var(--green);
+}
+.trial-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.theme-toggle {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+  background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.avatar {
+  width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--cyan), #7C4DFF);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+}
+
+/* MAIN LAYOUT */
+.main { display: flex; flex: 1; overflow: hidden; }
+
+/* CHAT PANEL */
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  min-width: 0;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Messages */
+.msg-user {
+  display: flex;
+  justify-content: flex-end;
+}
+.msg-user .msg-bubble {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 4px 16px;
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  max-width: 75%;
+  color: var(--text-primary);
+}
+.msg-ai {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.msg-ai-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--cyan);
+  font-weight: 500;
+}
+.msg-ai-content {
+  padding-left: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.msg-ai-content strong { color: var(--text-primary); font-weight: 500; }
+.msg-ai-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* Nudge card */
+.nudge-card {
+  background: var(--surface);
+  border: 1px solid var(--amber);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 0 20px rgba(255, 202, 40, 0.05);
+}
+.nudge-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--amber); margin-bottom: 10px;
+}
+.nudge-body { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+.nudge-body strong { color: var(--text-primary); }
+.nudge-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.nudge-btn {
+  padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border); background: transparent;
+  color: var(--text-primary); transition: all 0.15s;
+}
+.nudge-btn:hover { border-color: var(--text-secondary); }
+.nudge-btn.primary { background: var(--amber); color: #000; border-color: var(--amber); }
+.nudge-btn.primary:hover { opacity: 0.9; }
+.nudge-btn.dismiss { color: var(--text-tertiary); border-color: transparent; }
+
+/* Input bar */
+.input-bar {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--terminal-bg);
+  flex-shrink: 0;
+}
+.input-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: border-color 0.15s;
+}
+.input-inner:focus-within { border-color: var(--cyan); }
+.input-prompt { font-family: var(--font-mono); font-size: 13px; color: var(--cyan); white-space: nowrap; }
+.input-field {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: var(--font-mono); font-size: 13px; color: var(--text-primary);
+}
+.input-field::placeholder { color: var(--text-tertiary); }
+.send-btn {
+  padding: 6px 14px; border-radius: 8px; background: var(--cyan); color: #000;
+  border: none; font-size: 12px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* CALENDAR PANEL */
+.calendar-panel {
+  width: 400px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.calendar-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.calendar-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+.calendar-tabs { display: flex; gap: 2px; background: var(--surface); border-radius: 8px; padding: 2px; }
+.calendar-tabs button {
+  padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 500;
+  border: none; cursor: pointer; background: transparent; color: var(--text-tertiary);
+  transition: all 0.15s;
+}
+.calendar-tabs button.active { background: var(--border); color: var(--text-primary); }
+.calendar-date {
+  padding: 10px 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.calendar-date .cal-stats { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+
+/* TIME GRID */
+.calendar-body {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+.time-grid {
+  position: relative;
+  margin-left: 48px;
+  min-height: 660px;
+}
+.hour-gutter {
+  position: absolute;
+  left: -48px;
+  top: 0;
+  width: 40px;
+}
+.hour-label {
+  height: 50px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  position: relative;
+}
+.hour-label::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 44px;
+  right: -360px;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.4;
+}
+
+/* Events on grid */
+.grid-event {
+  position: absolute;
+  left: 4px;
+  right: 8px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.grid-event:hover { border-color: var(--border-hover); transform: translateX(2px); }
+.grid-event.high {
+  background: linear-gradient(135deg, rgba(239,83,80,0.15), rgba(239,83,80,0.05));
+  border-left: 3px solid var(--red);
+}
+.grid-event.medium {
+  background: linear-gradient(135deg, rgba(255,202,40,0.12), rgba(255,202,40,0.04));
+  border-left: 3px solid var(--amber);
+}
+.grid-event.low {
+  background: linear-gradient(135deg, rgba(102,187,106,0.12), rgba(102,187,106,0.04));
+  border-left: 3px solid var(--green);
+}
+.grid-event.break {
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid var(--border);
+}
+.grid-event.done { opacity: 0.4; }
+.grid-event.done .ev-title { text-decoration: line-through; }
+
+.ev-title { font-size: 12px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+.ev-meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+.ev-checkbox {
+  position: absolute; top: 8px; right: 8px;
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 1.5px solid var(--border); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--green); transition: all 0.15s;
+}
+.ev-checkbox:hover { border-color: var(--text-secondary); }
+.ev-checkbox.checked { border-color: var(--green); background: rgba(102,187,106,0.15); }
+.ev-progress {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: rgba(255,255,255,0.05); border-radius: 0 0 8px 8px; overflow: hidden;
+}
+.ev-progress-fill { height: 100%; }
+
+/* Now line */
+.now-indicator {
+  position: absolute;
+  left: -8px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+}
+.now-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(79,195,247,0.3);
+  flex-shrink: 0;
+}
+.now-rule { flex: 1; height: 2px; background: var(--cyan); opacity: 0.6; }
+.now-time {
+  font-family: var(--font-mono); font-size: 10px; color: var(--cyan);
+  padding-left: 6px; white-space: nowrap; background: var(--bg); padding-right: 4px;
+}
+
+/* Unscheduled section */
+.unscheduled {
+  border-top: 1px solid var(--border);
+  padding: 14px 16px;
+}
+.unsched-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.unsched-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+.unsched-hint { font-size: 10px; color: var(--text-tertiary); }
+.unsched-task {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: all 0.15s;
+}
+.unsched-task:hover { border-color: var(--border-hover); }
+.unsched-pri { width: 3px; height: 24px; border-radius: 2px; flex-shrink: 0; }
+.unsched-pri.low { background: var(--green); }
+.unsched-pri.med { background: var(--amber); }
+.unsched-info { flex: 1; }
+.unsched-name { font-size: 12px; font-weight: 500; }
+.unsched-meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+.place-btn {
+  padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 500;
+  border: 1px solid var(--border); background: transparent; color: var(--cyan);
+  cursor: pointer; transition: all 0.15s;
+}
+.place-btn:hover { border-color: var(--cyan); background: rgba(79,195,247,0.08); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <div class="logo"><span class="logo-icon">🌙</span> scedly</div>
+    <div class="nav-links">
+      <a href="#" class="active">workspace</a>
+      <a href="#">settings</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="trial-badge">Pro trial · 9 days left</div>
+    <button class="theme-toggle">🌙</button>
+    <div class="avatar">MK</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- CHAT -->
+  <div class="chat-panel">
+    <div class="chat-messages">
+
+      <!-- AI response -->
+      <div class="msg-ai">
+        <span class="msg-ai-label">scedly&gt;</span>
+        <div class="msg-ai-content">
+          ✓ Scheduled <strong>"Investor update"</strong> → Thu 09:00–11:00<br>
+          <span class="msg-ai-meta">↳ High-focus work placed in your morning peak. Deadline Fri 17:00 — 1 day of buffer.</span>
+        </div>
+      </div>
+
+      <!-- User message -->
+      <div class="msg-user">
+        <div class="msg-bubble">i missed this morning</div>
+      </div>
+
+      <!-- AI response -->
+      <div class="msg-ai">
+        <span class="msg-ai-label">scedly&gt;</span>
+        <div class="msg-ai-content">
+          ↻ Rescheduled <strong>2 tasks</strong><br>
+          <span class="msg-ai-meta">↳ "Investor update" → Thu 14:00–16:00 · "Gym" → 18:00 (evening, low-energy)</span>
+        </div>
+      </div>
+
+      <!-- User question -->
+      <div class="msg-user">
+        <div class="msg-bubble">why thursday afternoon?</div>
+      </div>
+
+      <!-- AI explanation -->
+      <div class="msg-ai">
+        <span class="msg-ai-label">scedly&gt;</span>
+        <div class="msg-ai-content">
+          Morning filled up after the slip. Afternoon is your next focus block before the deadline.
+        </div>
+      </div>
+
+      <!-- User message -->
+      <div class="msg-user">
+        <div class="msg-bubble">add gym thursday next week</div>
+      </div>
+
+      <!-- NUDGE CARD -->
+      <div class="nudge-card">
+        <div class="nudge-header">💡 Behavioral nudge</div>
+        <div class="nudge-body">
+          You've skipped <strong>gym on Thursdays</strong> 4 of the last 5 weeks. Want me to put it on <strong>Wednesday 18:00</strong> instead?
+        </div>
+        <div class="nudge-actions">
+          <button class="nudge-btn primary">Move to Wed</button>
+          <button class="nudge-btn">Keep Thursday</button>
+          <button class="nudge-btn dismiss">Don't ask again</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-bar">
+      <div class="input-inner">
+        <span class="input-prompt">scedly&gt;</span>
+        <input type="text" class="input-field" placeholder="schedule something, or ask why a task is where it is…">
+        <button class="send-btn">↗ send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="calendar-panel">
+    <div class="calendar-header">
+      <span class="calendar-title">Calendar</span>
+      <div class="calendar-tabs">
+        <button class="active">Today</button>
+        <button>Week</button>
+        <button>Month</button>
+      </div>
+    </div>
+    <div class="calendar-date">
+      Thu · Jun 12
+      <span class="cal-stats">3 scheduled · 1 done</span>
+    </div>
+    <div class="calendar-body">
+      <div class="time-grid">
+        <!-- Hour gutter -->
+        <div class="hour-gutter">
+          <div class="hour-label">09:00</div>
+          <div class="hour-label">10:00</div>
+          <div class="hour-label">11:00</div>
+          <div class="hour-label">12:00</div>
+          <div class="hour-label">13:00</div>
+          <div class="hour-label">14:00</div>
+          <div class="hour-label">15:00</div>
+          <div class="hour-label">16:00</div>
+          <div class="hour-label">17:00</div>
+          <div class="hour-label">18:00</div>
+          <div class="hour-label">19:00</div>
+          <div class="hour-label">20:00</div>
+          <div class="hour-label">21:00</div>
+        </div>
+
+        <!-- Events positioned on grid (1h = 50px, 09:00 = top:0) -->
+
+        <!-- 09:00–11:00 Investor update (High, in progress) -->
+        <div class="grid-event high" style="top: 2px; height: 96px;">
+          <span class="ev-checkbox"></span>
+          <div class="ev-title">Investor update</div>
+          <div class="ev-meta">09:00–11:00 · 2h · High</div>
+          <div class="ev-progress"><div class="ev-progress-fill" style="width: 45%; background: var(--red);"></div></div>
+        </div>
+
+        <!-- 11:30–12:00 Reply emails (Low, done) → top: 2.5h*50=125 -->
+        <div class="grid-event low done" style="top: 127px; height: 23px;">
+          <span class="ev-checkbox checked">✓</span>
+          <div class="ev-title">Reply emails</div>
+        </div>
+
+        <!-- 12:00–13:00 Lunch (break) → top: 3h*50=150 -->
+        <div class="grid-event break" style="top: 152px; height: 46px;">
+          <div class="ev-title" style="color: var(--text-tertiary);">Lunch</div>
+          <div class="ev-meta">12:00–13:00 · break</div>
+        </div>
+
+        <!-- NOW LINE @ 13:15 → 4.25h*50=212 -->
+        <div class="now-indicator" style="top: 214px;">
+          <div class="now-dot"></div>
+          <div class="now-rule"></div>
+          <span class="now-time">13:15</span>
+        </div>
+
+        <!-- 13:30–13:45 Standup notes (Medium) → top: 4.5h*50=225 -->
+        <div class="grid-event medium" style="top: 227px; height: 23px;">
+          <span class="ev-checkbox"></span>
+          <div class="ev-title">Standup notes</div>
+          <div class="ev-meta">13:30–13:45 · Med</div>
+        </div>
+
+        <!-- 15:00–15:45 Review PR #482 (High) → top: 6h*50=300 -->
+        <div class="grid-event high" style="top: 302px; height: 35px;">
+          <span class="ev-checkbox"></span>
+          <div class="ev-title">Review PR #482</div>
+          <div class="ev-meta">15:00–15:45 · High · due today</div>
+        </div>
+
+        <!-- 18:00–19:00 Gym (Low) → top: 9h*50=450 -->
+        <div class="grid-event low" style="top: 452px; height: 46px;">
+          <span class="ev-checkbox"></span>
+          <div class="ev-title">Gym</div>
+          <div class="ev-meta">18:00–19:00 · 1h · Low energy</div>
+        </div>
+
+        <!-- 20:00–20:30 Plan tomorrow (Low) → top: 11h*50=550 -->
+        <div class="grid-event low" style="top: 552px; height: 23px;">
+          <span class="ev-checkbox"></span>
+          <div class="ev-title">Plan tomorrow</div>
+          <div class="ev-meta">20:00–20:30 · Low</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Unscheduled tasks -->
+    <div class="unscheduled">
+      <div class="unsched-header">
+        <span class="unsched-title">Unscheduled</span>
+        <span class="unsched-hint">tap "place" to let scedly schedule</span>
+      </div>
+      <div class="unsched-task">
+        <div class="unsched-pri low"></div>
+        <div class="unsched-info">
+          <div class="unsched-name">Reply to design feedback</div>
+          <div class="unsched-meta">30m · Low · no deadline</div>
+        </div>
+        <button class="place-btn">place ↑</button>
+      </div>
+      <div class="unsched-task">
+        <div class="unsched-pri med"></div>
+        <div class="unsched-info">
+          <div class="unsched-name">Book flights for conference</div>
+          <div class="unsched-meta">45m · Med · due Mon</div>
+        </div>
+        <button class="place-btn">place ↑</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

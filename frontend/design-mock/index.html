@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scedly — the calendar that knows you</title>
+<meta name="description" content="Scedly is an AI behavioral coach that schedules your day, learns your patterns, and adapts when life happens. Talk to it like a terminal." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<script src="theme.js"></script>
+</head>
+<body>
+
+<!-- ============================ NAV ============================ -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="index.html">
+      <span class="glyph"><span class="sun">☀</span><span class="moon">🌙</span></span>
+      <span class="wordmark">scedly<span class="cursor">_</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">Why Scedly</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#channels">Channels</a>
+      <a href="#cli">CLI</a>
+      <a href="#mcp">MCP</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="nav-actions">
+      <button class="theme-toggle" data-theme-toggle title="Toggle theme">
+        <span class="i-sun">☀</span><span class="i-moon">🌙</span>
+      </button>
+      <a class="btn btn-ghost" href="login.html">Sign in</a>
+      <a class="btn btn-primary" href="login.html">Get started free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================ HERO ============================ -->
+<header class="section" style="padding-top:72px;padding-bottom:64px;">
+  <div class="wrap" style="display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;">
+    <div>
+      <span class="badge tag-low" style="margin-bottom:20px;"><span class="dot dot-low"></span>For founders who ship</span>
+      <h1>Why waste time<br>managing your own time?</h1>
+      <p class="lead mt-16">Other calendars are dumb — they just store events. <span style="color:var(--text);font-weight:600;">Scedly</span> schedules your day around your energy, reshuffles when you slip, and learns your patterns over weeks. Talk to it like a terminal; it does the rest.</p>
+      <div class="row gap-12 mt-32" style="flex-wrap:wrap;">
+        <a class="btn btn-primary btn-lg" href="login.html">Start free →</a>
+        <a class="btn btn-outline btn-lg" href="app.html">See the dashboard</a>
+      </div>
+      <div class="row gap-16 mt-24 mono" style="font-size:.8rem;color:var(--text-faint);flex-wrap:wrap;">
+        <span>✓ No credit card</span><span>✓ 30 tasks/mo free</span><span>✓ Google &amp; GitHub login</span>
+      </div>
+    </div>
+
+    <!-- hero terminal demo -->
+    <div class="term">
+      <div class="term-bar">
+        <span class="term-dots"><i></i><i></i><i></i></span>
+        <span class="term-title">scedly — ~/today</span>
+      </div>
+      <div class="term-body">
+<div class="term-line"><span class="usr">[User]:</span> <span class="term-user">draft the investor update, ~2h, due friday</span></div>
+<div class="term-line"><span class="bot">scedly&gt;</span> <span class="term-ok">✓ Scheduled “Investor update” — Thu 09:00–11:00</span></div>
+<div class="term-line term-comment">  ↳ High-focus work placed in your morning peak. Deadline Fri 17:00 — 1 day of buffer.</div>
+<div class="term-line" style="margin-top:.6em;"><span class="usr">[User]:</span> <span class="term-user">i missed this morning</span></div>
+<div class="term-line"><span class="bot">scedly&gt;</span> <span class="term-warn">↻ Rescheduled 2 tasks</span></div>
+<div class="term-line term-comment">  ↳ “Investor update” → Thu 14:00–16:00 · “Gym” → 18:00 (evening, low-energy)</div>
+<div class="term-line" style="margin-top:.6em;"><span class="usr">[User]:</span> <span class="term-info">why thursday afternoon?</span></div>
+<div class="term-line term-comment">  <span class="bot">scedly&gt;</span> Morning filled up after the slip. Afternoon is your next focus block before the deadline.</div>
+<div class="term-line" style="margin-top:.6em;"><span class="usr">[User]:</span> <span class="term-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ LOGO/TRUST STRIP ============================ -->
+<div class="wrap">
+  <div class="dashed"></div>
+  <div class="row" style="justify-content:center;gap:36px;padding:22px 0;flex-wrap:wrap;color:var(--text-faint);font-family:var(--font-mono);font-size:.78rem;">
+    <span>WEB</span><span>·</span><span>CLI</span><span>·</span><span>SLACK</span><span>·</span><span>TELEGRAM</span><span>·</span><span>GOOGLE&nbsp;CHAT</span><span>·</span><span>MCP</span><span>·</span><span>GMAIL</span>
+  </div>
+  <div class="dashed"></div>
+</div>
+
+<!-- ============================ PROBLEM ============================ -->
+<section class="section" id="problem">
+  <div class="wrap center">
+    <span class="eyebrow">The problem</span>
+    <h2 class="mt-16">Every calendar app makes <em>you</em> do the work.</h2>
+    <p class="lead" style="margin:16px auto 0;">Dragging blocks, guessing durations, reshuffling by hand when a meeting runs over. Your calendar records time — it doesn’t protect it.</p>
+    <div class="grid grid-3 mt-48" style="text-align:left;">
+      <div class="card">
+        <div class="pixel-block" style="background:var(--pri-high);">!</div>
+        <h3 class="mt-16">It doesn’t know your energy</h3>
+        <p class="mt-8">Deep work gets dumped at 4pm next to three meetings. No recovery time, no peak-hour awareness.</p>
+      </div>
+      <div class="card">
+        <div class="pixel-block" style="background:var(--accent);">×</div>
+        <h3 class="mt-16">It breaks the moment you slip</h3>
+        <p class="mt-8">Miss one morning and the whole week is wrong. You spend Sunday night rebuilding it by hand.</p>
+      </div>
+      <div class="card">
+        <div class="pixel-block">$</div>
+        <h3 class="mt-16">It never gets smarter</h3>
+        <p class="mt-8">You skip the gym every Thursday for a month and it keeps booking it Thursday. No memory, no coaching.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ HOW IT WORKS ============================ -->
+<section class="section" id="how" style="background:var(--bg-elev);border-block:1px solid var(--border);">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">How it works</span>
+      <h2 class="mt-16">Talk. It schedules. It adapts.</h2>
+    </div>
+    <div class="grid grid-3 mt-48">
+      <div class="card card-hover">
+        <span class="badge mono">01</span>
+        <h3 class="mt-16">Say it in plain English</h3>
+        <p class="mt-8">“Study for the exam 2 hours, sometime before Thursday.” No forms, no dropdowns.</p>
+        <div class="term mt-16"><div class="term-body" style="padding:12px 14px;font-size:.8rem;">
+          <span class="usr">[User]:</span> <span class="term-user">study 2h before thu</span>
+        </div></div>
+      </div>
+      <div class="card card-hover">
+        <span class="badge mono">02</span>
+        <h3 class="mt-16">It places it intelligently</h3>
+        <p class="mt-8">Priority, energy level, deadline and your working window decide the slot — conflict-free.</p>
+        <div class="term mt-16"><div class="term-body" style="padding:12px 14px;font-size:.8rem;">
+          <span class="term-ok">✓ Wed 09:00–11:00</span><br><span class="term-comment">  high-focus · morning peak</span>
+        </div></div>
+      </div>
+      <div class="card card-hover">
+        <span class="badge mono">03</span>
+        <h3 class="mt-16">It reshuffles when life happens</h3>
+        <p class="mt-8">Miss a block? It reschedules only what’s affected and tells you exactly what moved and why.</p>
+        <div class="term mt-16"><div class="term-body" style="padding:12px 14px;font-size:.8rem;">
+          <span class="term-warn">↻ moved to 14:00</span><br><span class="term-comment">  morning is now full</span>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FEATURES ============================ -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">Features</span>
+      <h2 class="mt-16">A scheduler with a memory.</h2>
+    </div>
+    <div class="grid grid-3 mt-48">
+      <div class="card card-hover"><div class="pixel-block" style="background:var(--pri-high);">⚡</div><h3 class="mt-16">Energy-aware placement</h3><p class="mt-8">High-focus work lands in your peak hours with 30-min recovery buffers between demanding tasks.</p></div>
+      <div class="card card-hover"><div class="pixel-block" style="background:var(--accent);">↻</div><h3 class="mt-16">Auto-reschedule</h3><p class="mt-8">Missed, added, or edited a task? Scedly recomputes incrementally and protects rigid time.</p></div>
+      <div class="card card-hover"><div class="pixel-block">✶</div><h3 class="mt-16">Conflict resolution</h3><p class="mt-8">Overlaps get resolved automatically when safe, escalated to you with clear options when not.</p></div>
+      <div class="card card-hover"><div class="pixel-block" style="background:var(--pri-low);">◷</div><h3 class="mt-16">Working windows &amp; focus hours</h3><p class="mt-8">Set when you work and when you focus. Low-priority tasks stay out of protected time.</p></div>
+      <div class="card card-hover"><div class="pixel-block" style="background:var(--accent-2);">∞</div><h3 class="mt-16">Behavioral learning</h3><p class="mt-8">It notices patterns over weeks and nudges: “You skip gym on Thursdays 4/5 times — move it?”</p></div>
+      <div class="card card-hover"><div class="pixel-block" style="background:var(--coin);">⌘</div><h3 class="mt-16">Everywhere you work</h3><p class="mt-8">Web, CLI, Slack, Telegram, Google Chat, MCP — one brain, one set of data, in sync.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ THE AI LEARNS ============================ -->
+<section class="section" style="background:var(--bg-elev);border-block:1px solid var(--border);">
+  <div class="wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <span class="eyebrow">It compounds</span>
+      <h2 class="mt-16">The longer you use it, the smarter it gets.</h2>
+      <p class="lead mt-16">Scedly builds a private memory of how you actually work — and turns it into better scheduling, not just records.</p>
+      <ul class="mt-24 stack gap-12">
+        <li class="chip" style="width:fit-content;">Week 1 · learns your durations &amp; peak hours</li>
+        <li class="chip" style="width:fit-content;">Week 3 · spots recurring skips &amp; best times</li>
+        <li class="chip" style="width:fit-content;">Month 2 · proactively coaches your week</li>
+      </ul>
+    </div>
+    <div class="term">
+      <div class="term-bar"><span class="term-dots"><i></i><i></i><i></i></span><span class="term-title">scedly — insights</span></div>
+      <div class="term-body">
+<div class="term-line term-comment">// after 4 weeks of history</div>
+<div class="term-line term-info">◔ You complete deep work 30% faster before noon.</div>
+<div class="term-line term-info">◔ Gym skipped 4/5 Thursdays.</div>
+<div class="term-line" style="margin-top:.5em;"><span class="usr">[User]:</span> <span class="term-user">add gym thursday</span></div>
+<div class="term-line term-warn">💡 You usually skip gym on Thursday. Want Wednesday 18:00 instead?</div>
+<div class="term-line term-comment">  [ yes ]  [ keep thursday ]</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CHANNELS ============================ -->
+<section class="section" id="channels">
+  <div class="wrap center">
+    <span class="eyebrow">One brain, every surface</span>
+    <h2 class="mt-16">Manage your day from anywhere.</h2>
+    <p class="lead" style="margin:16px auto 0;">A task created in your terminal shows up on your calendar instantly — and vice versa.</p>
+    <div class="grid grid-4 mt-48">
+      <div class="card center"><div style="font-size:26px">🖥️</div><h3 class="mt-8" style="font-size:1rem">Web app</h3><p class="mt-8" style="font-size:.85rem">Terminal-style dashboard</p></div>
+      <div class="card center"><div style="font-size:26px">⌨️</div><h3 class="mt-8" style="font-size:1rem">CLI</h3><p class="mt-8" style="font-size:.85rem"><span class="mono">pip install scedly</span></p></div>
+      <div class="card center"><div style="font-size:26px">💬</div><h3 class="mt-8" style="font-size:1rem">Slack</h3><p class="mt-8" style="font-size:.85rem">Schedule in-thread</p></div>
+      <div class="card center"><div style="font-size:26px">✈️</div><h3 class="mt-8" style="font-size:1rem">Telegram</h3><p class="mt-8" style="font-size:.85rem">On your phone</p></div>
+      <div class="card center"><div style="font-size:26px">🗨️</div><h3 class="mt-8" style="font-size:1rem">Google Chat</h3><p class="mt-8" style="font-size:.85rem">In your workspace</p></div>
+      <div class="card center"><div style="font-size:26px">🤖</div><h3 class="mt-8" style="font-size:1rem">MCP</h3><p class="mt-8" style="font-size:.85rem">Claude Code / Cursor</p></div>
+      <div class="card center"><div style="font-size:26px">📅</div><h3 class="mt-8" style="font-size:1rem">Calendar sync</h3><p class="mt-8" style="font-size:.85rem">Google &amp; Outlook</p></div>
+      <div class="card center"><div style="font-size:26px">✉️</div><h3 class="mt-8" style="font-size:1rem">Email</h3><p class="mt-8" style="font-size:.85rem">Daily summaries</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CLI SHOWCASE ============================ -->
+<section class="section" id="cli">
+  <div class="wrap" style="display:grid;grid-template-columns:0.92fr 1.08fr;gap:48px;align-items:center;">
+    <div>
+      <span class="eyebrow">For the terminal-native</span>
+      <h2 class="mt-16">Never leave your terminal.</h2>
+      <p class="lead mt-16">Scedly ships a tiny pip-installable CLI — a pure HTTP client to the same backend. Schedule, stream replies token-by-token, and check your day without touching the browser.</p>
+      <div class="stack gap-12 mt-24">
+        <div class="chip" style="width:fit-content;"><span class="mono">scedly login</span> — paste your API key once</div>
+        <div class="chip" style="width:fit-content;"><span class="mono">scedly chat "…"</span> — talk to the agent, streamed</div>
+        <div class="chip" style="width:fit-content;"><span class="mono">scedly schedule</span> — today’s blocks</div>
+        <div class="chip" style="width:fit-content;"><span class="mono">scedly tasks --status all</span> — your list</div>
+      </div>
+      <p class="mono faint mt-24" style="font-size:.8rem;">Included with Pro &amp; during your 14-day trial. Same data as web, Slack &amp; MCP.</p>
+    </div>
+
+    <!-- CLI terminal -->
+    <div class="term">
+      <div class="term-bar">
+        <span class="term-dots"><i></i><i></i><i></i></span>
+        <span class="term-title">bash — scedly</span>
+      </div>
+      <div class="term-body" style="line-height:1.6;">
+<div class="term-line term-comment">$ pip install scedly</div>
+<div class="term-line term-comment">$ scedly</div>
+<div class="term-line" style="color:#e0a93c;">          \   |   /</div>
+<div class="term-line"><span style="color:#e0a93c;">       '-. </span><span style="color:#ffd75f;">.-~-.</span><span style="color:#e0a93c;"> .-'</span></div>
+<div class="term-line"><span style="color:#e0a93c;">     ---  </span><span style="color:#ffd75f;">( o o )</span><span style="color:#e0a93c;">  ---     </span><span class="term-ok">scedly_</span></div>
+<div class="term-line"><span style="color:#e0a93c;">       .-' </span><span style="color:#ffd75f;">'-_-'</span><span style="color:#e0a93c;"> '-.</span><span style="color:#e0a93c;">      schedule, automated.</span></div>
+<div class="term-line" style="color:#e0a93c;">          /   |   \</div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line term-comment">$ scedly login</div>
+<div class="term-line">API key (sk-...): <span class="term-dim">••••••••••••</span></div>
+<div class="term-line term-ok">✓ Logged in. Config saved.</div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line"><span class="term-comment">$</span> <span class="term-user">scedly chat "draft the investor update, 2h, due friday"</span></div>
+<div class="term-line">Scheduled <span class="term-ok">“Investor update”</span> for Thu 09:00–11:00 — placed in your</div>
+<div class="term-line">morning focus block with a full day of buffer before the deadline.<span class="term-cursor"></span></div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line"><span class="term-comment">$</span> <span class="term-user">scedly schedule</span></div>
+<div class="term-line">  09:00 – 11:00  Investor update</div>
+<div class="term-line">  13:30 – 13:45  Standup notes</div>
+<div class="term-line">  15:00 – 15:45  Review PR #482</div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line"><span class="term-comment">$</span> <span class="term-user">scedly tasks --status all</span></div>
+<div class="term-line">  ○ Investor update (120min, High)</div>
+<div class="term-line">  ○ Review PR #482 (45min, High)</div>
+<div class="term-line">  ✓ Read chapter 5 (45min, Low)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MCP — CLAUDE CODE & CURSOR ============================ -->
+<section class="section" id="mcp" style="background:var(--bg-elev);border-block:1px solid var(--border);">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">MCP · your AI agent, our data</span>
+      <h2 class="mt-16">Schedule from inside Claude Code &amp; Cursor.</h2>
+      <p class="lead" style="margin:16px auto 0;">Scedly exposes an MCP server, so your coding agent can create tasks, pull your day, and reschedule — without you ever leaving the editor. Same account, same calendar, in real time.</p>
+    </div>
+
+    <div class="grid grid-2 mt-48">
+
+      <!-- Claude Code instance -->
+      <div class="term">
+        <div class="term-bar">
+          <span class="term-dots"><i></i><i></i><i></i></span>
+          <span class="term-title">claude code — mcp: scedly</span>
+          <span class="badge mono" style="margin-left:auto;font-size:.62rem;color:var(--accent-2);border-color:color-mix(in srgb,var(--accent-2) 40%,var(--border));">● connected</span>
+        </div>
+        <div class="term-body" style="line-height:1.7;">
+<div class="term-line"><span class="usr">[You]:</span> <span class="term-user">before I start the auth refactor, block 2 focused hours tomorrow</span></div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line term-comment">Claude is using a tool…</div>
+<div class="term-line"><span style="color:var(--accent-2);">⚙ scedly.create_task</span> <span class="term-dim">{ title:"Auth refactor", duration:120, energy:"High" }</span></div>
+<div class="term-line term-ok">  → ✓ scheduled Fri 09:00–11:00</div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line">Reserved tomorrow morning — your peak focus window — for the</div>
+<div class="term-line">refactor. I’ll start on the code now.<span class="term-cursor"></span></div>
+        </div>
+      </div>
+
+      <!-- Cursor instance -->
+      <div class="term">
+        <div class="term-bar">
+          <span class="term-dots"><i></i><i></i><i></i></span>
+          <span class="term-title">cursor — mcp: scedly</span>
+          <span class="badge mono" style="margin-left:auto;font-size:.62rem;color:var(--pri-low);border-color:color-mix(in srgb,var(--pri-low) 40%,var(--border));">● connected</span>
+        </div>
+        <div class="term-body" style="line-height:1.7;">
+<div class="term-line"><span class="usr">[You]:</span> <span class="term-user">what’s left today? reschedule if I’m behind</span></div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line"><span style="color:var(--accent-2);">⚙ scedly.get_schedule</span><span class="term-dim">()</span> <span class="term-ok">→ 3 tasks</span></div>
+<div class="term-line"><span style="color:var(--accent-2);">⚙ scedly.reschedule</span><span class="term-dim">(missed="standup")</span> <span class="term-warn">→ moved</span></div>
+<div class="term-line">&nbsp;</div>
+<div class="term-line">Updated your day:</div>
+<div class="term-line term-comment">  15:30  Standup notes   (was 09:30)</div>
+<div class="term-line term-comment">  16:00  Review PR #482</div>
+<div class="term-line">You’re back on track.<span class="term-cursor"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row gap-12 mt-32" style="justify-content:center;flex-wrap:wrap;">
+      <span class="chip mono">create_task</span>
+      <span class="chip mono">list_tasks</span>
+      <span class="chip mono">get_schedule</span>
+      <span class="chip mono">reschedule</span>
+      <span class="chip mono">mark_complete</span>
+      <span class="chip mono">update_preferences</span>
+    </div>
+    <p class="center mono faint mt-16" style="font-size:.8rem;">Works with Claude Code, Cursor, Claude Desktop, or any MCP-compatible client. Authenticated by your API key.</p>
+  </div>
+</section>
+
+<!-- ============================ PRICING ============================ -->
+<section class="section" id="pricing" style="background:var(--bg-elev);border-block:1px solid var(--border);">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">Pricing</span>
+      <h2 class="mt-16">14 days of Pro, free. No card.</h2>
+      <p class="lead" style="margin:16px auto 0;">Every new account starts on a <strong style="color:var(--text)">14-day Pro trial</strong> — all features, all channels, no credit card. When it ends you simply roll onto the Free plan. Upgrade only if you want to.</p>
+    </div>
+    <div class="grid grid-2 mt-48" style="max-width:820px;margin-inline:auto;">
+      <div class="card">
+        <h3 class="mono">Free</h3>
+        <div class="row gap-8" style="align-items:baseline;margin-top:8px;"><span style="font-size:2.4rem;font-weight:800;">$0</span><span class="muted">/forever</span></div>
+        <p class="mt-8">Where you land after the trial.</p>
+        <a class="btn btn-ghost btn-block mt-24" href="login.html">Start free trial</a>
+        <ul class="mt-24 stack gap-12 mono" style="font-size:.85rem;">
+          <li>✓ 30 tasks / month</li>
+          <li>✓ Web app dashboard</li>
+          <li>✓ AI scheduling &amp; rescheduling</li>
+          <li class="faint">✗ CLI, Slack, Telegram, MCP</li>
+          <li class="faint">✗ Calendar sync &amp; email</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:var(--accent);box-shadow:0 0 0 1px var(--accent), var(--shadow);position:relative;">
+        <span class="badge tag-low" style="position:absolute;top:-11px;right:18px;background:var(--accent);color:#04121f;border-color:var(--accent);"><span class="dot" style="background:#04121f"></span>14-day free trial</span>
+        <h3 class="mono">Pro</h3>
+        <div class="row gap-8" style="align-items:baseline;margin-top:8px;"><span style="font-size:2.4rem;font-weight:800;">$9</span><span class="muted">/mo · or $96/yr</span></div>
+        <p class="mt-8">Free for 14 days, then $9/mo if you keep it.</p>
+        <a class="btn btn-primary btn-block mt-24" href="login.html">Start 14-day trial</a>
+        <ul class="mt-24 stack gap-12 mono" style="font-size:.85rem;">
+          <li>✓ Unlimited tasks</li>
+          <li>✓ All channels — CLI, Slack, Telegram, Google Chat, MCP</li>
+          <li>✓ Google &amp; Outlook calendar sync</li>
+          <li>✓ Email reminders &amp; daily summaries</li>
+          <li>✓ Behavioral coaching &amp; priority routing</li>
+        </ul>
+      </div>
+    </div>
+    <p class="center mono faint mt-24" style="font-size:.8rem;">Secure payments by Stripe. Cancel anytime from the billing portal.</p>
+  </div>
+</section>
+
+<!-- ============================ CTA ============================ -->
+<section class="section center">
+  <div class="wrap">
+    <h2>Stop managing your calendar.<br>Let it manage itself.</h2>
+    <a class="btn btn-primary btn-lg mt-24" href="login.html">Get started free →</a>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-cols">
+      <div>
+        <a class="logo" href="index.html"><span class="glyph"><span class="sun">☀</span><span class="moon">🌙</span></span><span class="wordmark">scedly<span class="cursor">_</span></span></a>
+        <p class="mt-16" style="max-width:30ch;font-size:.88rem;">The AI behavioral coach that uses your calendar as its interface.</p>
+      </div>
+      <div><h4>Product</h4><a href="#features">Features</a><a href="#channels">Channels</a><a href="#pricing">Pricing</a><a href="app.html">Dashboard</a></div>
+      <div><h4>Access</h4><a href="#">CLI</a><a href="#">Slack</a><a href="#">Telegram</a><a href="#">MCP server</a></div>
+      <div><h4>Account</h4><a href="login.html">Sign in</a><a href="onboarding.html">Onboarding</a><a href="settings.html">Settings</a></div>
+    </div>
+    <div class="divider mt-32"></div>
+    <div class="row" style="justify-content:space-between;padding-top:20px;flex-wrap:wrap;gap:12px;">
+      <span class="mono faint" style="font-size:.8rem;">© A.K.A. All rights reserved.</span>
+      <span class="mono faint" style="font-size:.8rem;">scedly_ · built for founders who ship</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { @apply bg-bg text-text-primary font-sans antialiased; }
+
+  .light body, .light { 
+    --bg: #F8F9FC;
+    --surface: #FFFFFF;
+    --border: #E2E4E9;
+    --border-hover: #D0D3DA;
+    --terminal: #F1F3F7;
+    --text-primary: #111318;
+    --text-secondary: #4B5563;
+    --text-tertiary: #9CA3AF;
+  }
+}
+
+.light .bg-bg { background-color: #F8F9FC; }
+.light .bg-surface { background-color: #FFFFFF; }
+.light .bg-terminal { background-color: #F1F3F7; }
+.light .border-border { border-color: #E2E4E9; }
+.light .border-border-hover { border-color: #D0D3DA; }
+.light .text-text-primary, .light .text-white { color: #111318; }
+.light .text-text-secondary { color: #4B5563; }
+.light .text-text-tertiary { color: #9CA3AF; }
+.light .bg-white\/\[\.04\] { background-color: rgba(0,0,0,0.04); }
+.light .bg-white\/\[\.06\] { background-color: rgba(0,0,0,0.05); }
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+}
+
+@keyframes nowPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 6px #4FC3F7, 0 0 14px rgba(79,195,247,.3); }
+  50% { transform: scale(1.15); box-shadow: 0 0 10px #4FC3F7, 0 0 20px rgba(79,195,247,.4); }
+}

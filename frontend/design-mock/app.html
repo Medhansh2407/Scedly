@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>scedly_ — dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="app.css" />
+<script src="theme.js"></script>
+</head>
+<body class="app-body">
+
+<!-- ============================ TOP BAR ============================ -->
+<header class="app-top">
+  <div class="left">
+    <a class="logo" href="index.html">
+      <span class="glyph"><span class="sun">☀</span><span class="moon">🌙</span></span>
+      <span class="wordmark">scedly<span class="cursor">_</span></span>
+    </a>
+    <nav class="app-nav">
+      <a href="app.html" class="active">workspace</a>
+      <a href="settings.html">settings</a>
+    </nav>
+  </div>
+  <div class="right">
+    <span class="badge tag-low"><span class="dot dot-low"></span>Pro trial · 9 days left</span>
+    <button class="theme-toggle" data-theme-toggle title="Toggle theme"><span class="i-sun">☀</span><span class="i-moon">🌙</span></button>
+    <div class="avatar">MK</div>
+  </div>
+</header>
+
+<!-- ============================ WORKSPACE ============================ -->
+<div class="workspace">
+
+  <!-- ---------- LEFT: agent conversation ---------- -->
+  <section class="pane pane-term">
+    <div class="feed" data-term-feed>
+
+      <div class="feed-block">
+        <div class="term-line term-comment">// Thursday, Jun 11 · working window 09:00–22:00 · you’re a morning person</div>
+      </div>
+
+      <div class="feed-block">
+        <div class="feed-cmd"><span class="usr">[User]:</span> <span class="term-user">draft the investor update, about 2 hours, due friday</span></div>
+        <div class="ai-card">
+          <div class="title"><span class="bot">scedly&gt;</span> ✓ Scheduled “Investor update” — Thu 09:00–11:00</div>
+          <div class="reason">High-focus work placed in your morning peak. Deadline Fri 17:00, so there’s a full day of buffer. Priority: High.</div>
+        </div>
+      </div>
+
+      <div class="feed-block">
+        <div class="feed-cmd"><span class="usr">[User]:</span> <span class="term-user">gym tomorrow, an hour</span></div>
+        <div class="ai-card">
+          <div class="title"><span class="bot">scedly&gt;</span> ✓ Scheduled “Gym” — Fri 18:00–19:00</div>
+          <div class="reason">Inferred High energy (workout). Placed in the evening so it won’t collide with your deep-focus morning. Flexible.</div>
+        </div>
+      </div>
+
+      <div class="feed-block">
+        <div class="feed-cmd"><span class="usr">[User]:</span> <span class="term-user">i missed this morning</span></div>
+        <div class="feed-resp"><span class="bot">scedly&gt;</span> <span class="term-warn">↻ Found 1 missed task. Rescheduling…</span></div>
+        <div class="ai-card" style="border-left-color:var(--pri-med);background:color-mix(in srgb,var(--pri-med) 8%,transparent);">
+          <div class="title" style="color:#f0e2bf;"><span class="bot">scedly&gt;</span> ↻ “Standup notes” → Thu 13:30–13:45</div>
+          <div class="reason">Was 09:30. Your morning is now full, so it moved to the next open slot before its deadline.</div>
+        </div>
+      </div>
+
+      <div class="feed-block">
+        <div class="feed-cmd"><span class="usr">[User]:</span> <span class="term-user">add gym thursday next week</span></div>
+        <div class="nudge">
+          <div class="label">💡 scedly · behavioral nudge</div>
+          <div style="margin-top:6px;">You’ve skipped <strong>gym</strong> on Thursdays 4 of the last 5 weeks. Want me to put it on <strong>Wednesday 18:00</strong> instead?</div>
+          <div class="nudge-actions">
+            <button>Move to Wed</button>
+            <button>Keep Thursday</button>
+            <button>Don’t ask again</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed-block">
+        <div class="feed-cmd"><span class="usr">[User]:</span> <span class="term-cursor"></span></div>
+      </div>
+
+    </div>
+
+    <!-- input bar -->
+    <div class="term-input">
+      <span class="ps usr">[User]:</span>
+      <input type="text" data-term-input placeholder="schedule something, or ask why a task is where it is…" autocomplete="off" />
+      <span class="badge mono" style="font-size:.68rem;">⏎ send</span>
+    </div>
+  </section>
+
+  <!-- ---------- RIGHT: calendar + unscheduled (2 in 1) ---------- -->
+  <aside class="pane pane-side">
+
+    <div class="panel" style="padding-bottom:8px;">
+      <div class="panel-head">
+        <h3>Calendar</h3>
+        <div class="cal-tabs" data-tabs="cal">
+          <button data-tab="today" class="active">Today</button>
+          <button data-tab="week">Week</button>
+          <button data-tab="month">Month</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TODAY (detailed, checkable blocks) ===== -->
+    <div data-panel="cal" data-tab-panel="today">
+      <div class="calwrap">
+        <div class="cal-meta">
+          <span>Thu · Jun 11</span>
+          <span>3 scheduled · 1 done</span>
+        </div>
+
+        <div class="daycal">
+          <!-- hour gutter -->
+          <div class="gutter">
+            <div class="h">09:00</div><div class="h">10:00</div><div class="h">11:00</div>
+            <div class="h">12:00</div><div class="h">13:00</div><div class="h">14:00</div>
+            <div class="h">15:00</div><div class="h">16:00</div><div class="h">17:00</div>
+            <div class="h">18:00</div><div class="h">19:00</div><div class="h">20:00</div>
+            <div class="h">21:00</div><div class="h">22:00</div>
+          </div>
+
+          <!-- canvas: 1 hour = 46px, 09:00 = top 0 -->
+          <div class="canvas" style="min-height:644px;">
+
+            <!-- now line @ 13:15 → 4.25h*46 = 195.5 -->
+            <div class="nowline" style="top:196px;"></div>
+
+            <!-- 09:00–11:00 Investor update (High, in progress) -->
+            <div class="ev high" style="top:2px;height:88px;" data-task>
+              <span class="evcbx" data-check></span>
+              <div class="evbody">
+                <div class="evtitle">Investor update</div>
+                <div class="evmeta"><span>09:00–11:00</span><span>· 2h</span><span>· High</span></div>
+                <div class="progmini"><i style="width:45%"></i></div>
+              </div>
+            </div>
+
+            <!-- 11:30–12:00 Reply emails (Low, done) → top 2.5h*46=115 -->
+            <div class="ev low done is-complete" style="top:117px;height:21px;" data-task>
+              <span class="evcbx done" data-check>✓</span>
+              <div class="evbody"><div class="evtitle">Reply emails</div></div>
+            </div>
+
+            <!-- 12:00–13:00 lunch → top 3h*46=138 -->
+            <div class="ev lunch" style="top:140px;height:42px;">
+              <div class="evbody"><div class="evtitle">Lunch</div><div class="evmeta">12:00–13:00 · break</div></div>
+            </div>
+
+            <!-- 13:30–13:45 Standup notes (Med) → top 4.5h*46=207 -->
+            <div class="ev med" style="top:209px;height:24px;" data-task>
+              <span class="evcbx" data-check></span>
+              <div class="evbody"><div class="evtitle">Standup notes</div><div class="evmeta"><span>13:30–13:45</span><span>· Med</span></div></div>
+            </div>
+
+            <!-- 15:00–15:45 Review PR #482 (High) → top 6h*46=276 -->
+            <div class="ev high" style="top:278px;height:32px;" data-task>
+              <span class="evcbx" data-check></span>
+              <div class="evbody"><div class="evtitle">Review PR #482</div><div class="evmeta"><span>15:00–15:45</span><span>· High · due today</span></div></div>
+            </div>
+
+            <!-- 20:00–20:30 Plan tomorrow (Low) → top 11h*46=506 -->
+            <div class="ev low" style="top:508px;height:24px;" data-task>
+              <span class="evcbx" data-check></span>
+              <div class="evbody"><div class="evtitle">Plan tomorrow</div><div class="evmeta"><span>20:00–20:30</span><span>· Low</span></div></div>
+            </div>
+
+          </div>
+        </div>
+        <p class="mono faint" style="font-size:.7rem;padding:10px 4px 0;">▓ red high · ▓ gold medium · ▓ green low · check a block to mark it done</p>
+      </div>
+
+      <!-- unscheduled drawer -->
+      <div class="unsched">
+        <div class="unsched-head">
+          <h3>Unscheduled</h3>
+          <span class="hint">tap “place” to let scedly schedule</span>
+        </div>
+
+        <div class="us-task" data-task>
+          <span class="pri-bar low" style="width:3px;height:30px;border-radius:2px;background:var(--pri-low);"></span>
+          <span class="cbx" data-check></span>
+          <div class="body"><div class="name">Reply to design feedback</div><div class="meta">30m · Low · no deadline</div></div>
+          <button class="go">place ↑</button>
+        </div>
+
+        <div class="us-task" data-task>
+          <span class="pri-bar med" style="width:3px;height:30px;border-radius:2px;background:var(--pri-med);"></span>
+          <span class="cbx" data-check></span>
+          <div class="body"><div class="name">Book flights for conference</div><div class="meta">45m · Med · due Mon</div></div>
+          <button class="go">place ↑</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== WEEK ===== -->
+    <div data-panel="cal" data-tab-panel="week" style="display:none;">
+      <div class="calwrap" style="padding-top:10px;">
+        <div class="cal-sub">
+          <span class="label">Jun 9 – 15</span>
+          <div class="mode-toggle" data-tabs="weekmode">
+            <button data-tab="wkov" class="active">Overview</button>
+            <button data-tab="wkdt">Detail</button>
+          </div>
+        </div>
+
+        <!-- week overview -->
+        <div data-panel="weekmode" data-tab-panel="wkov">
+          <div class="week">
+            <div class="col"><h5>Mon</h5><div class="colbox"><div class="slot high">Spec review</div><div class="slot low">Email</div></div></div>
+            <div class="col"><h5>Tue</h5><div class="colbox"><div class="slot med">1:1s</div></div></div>
+            <div class="col"><h5>Wed</h5><div class="colbox"><div class="slot high">Deep work</div><div class="slot low">Read ch.5</div></div></div>
+            <div class="col today"><h5>Thu</h5><div class="colbox"><div class="slot high">Investor</div><div class="slot med">Standup</div><div class="slot high">PR #482</div><div class="slot low">Plan</div></div></div>
+            <div class="col"><h5>Fri</h5><div class="colbox"><div class="slot high">Gym</div></div></div>
+            <div class="col"><h5>Sat</h5><div class="colbox"></div></div>
+            <div class="col"><h5>Sun</h5><div class="colbox"><div class="slot low">Plan week</div></div></div>
+          </div>
+          <p class="mono faint" style="font-size:.72rem;padding:12px 4px 0;">Switch to Detail for hour-by-hour blocks. External events count as blocked time.</p>
+        </div>
+
+        <!-- week detail (time grid) -->
+        <div data-panel="weekmode" data-tab-panel="wkdt" style="display:none;">
+          <div class="wkdetail">
+            <div class="wk-head">
+              <div></div>
+              <div class="d">Mon<small>9</small></div>
+              <div class="d">Tue<small>10</small></div>
+              <div class="d">Wed<small>11</small></div>
+              <div class="d today">Thu<small>12</small></div>
+              <div class="d">Fri<small>13</small></div>
+              <div class="d">Sat<small>14</small></div>
+              <div class="d">Sun<small>15</small></div>
+            </div>
+            <div class="wk-body">
+              <div class="wk-gutter">
+                <div class="h">09</div><div class="h">10</div><div class="h">11</div><div class="h">12</div>
+                <div class="h">13</div><div class="h">14</div><div class="h">15</div><div class="h">16</div>
+                <div class="h">17</div><div class="h">18</div><div class="h">19</div><div class="h">20</div><div class="h">21</div>
+              </div>
+              <!-- Mon -->
+              <div class="wk-col" style="min-height:360px;">
+                <div class="wev high" style="top:0;height:58px;">Spec review<span class="wt">09–11</span></div>
+                <div class="wev low" style="top:210px;height:15px;">Email</div>
+              </div>
+              <!-- Tue -->
+              <div class="wk-col" style="min-height:360px;">
+                <div class="wev med" style="top:120px;height:28px;">1:1s<span class="wt">13–14</span></div>
+              </div>
+              <!-- Wed -->
+              <div class="wk-col" style="min-height:360px;">
+                <div class="wev high" style="top:0;height:58px;">Deep work<span class="wt">09–11</span></div>
+                <div class="wev low done" style="top:270px;height:22px;">Read ch.5</div>
+              </div>
+              <!-- Thu (today) -->
+              <div class="wk-col today" style="min-height:360px;">
+                <div class="wev high" style="top:0;height:58px;">Investor<span class="wt">09–11</span></div>
+                <div class="wev med" style="top:135px;height:14px;">Standup</div>
+                <div class="wev high" style="top:180px;height:22px;">PR #482</div>
+                <div class="wev low" style="top:330px;height:15px;">Plan</div>
+              </div>
+              <!-- Fri -->
+              <div class="wk-col" style="min-height:360px;">
+                <div class="wev high" style="top:270px;height:28px;">Gym<span class="wt">18–19</span></div>
+              </div>
+              <!-- Sat -->
+              <div class="wk-col" style="min-height:360px;"></div>
+              <!-- Sun -->
+              <div class="wk-col" style="min-height:360px;">
+                <div class="wev low" style="top:240px;height:28px;">Plan week<span class="wt">17–18</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MONTH ===== -->
+    <div data-panel="cal" data-tab-panel="month" style="display:none;">
+      <div class="calwrap" style="padding-top:10px;">
+        <div class="cal-sub">
+          <span class="label">June 2026</span>
+          <div class="mode-toggle" data-tabs="monthmode">
+            <button data-tab="mnov" class="active">Overview</button>
+            <button data-tab="mndt">Detail</button>
+          </div>
+        </div>
+
+        <!-- month overview (dots) -->
+        <div data-panel="monthmode" data-tab-panel="mnov">
+          <div class="month">
+            <div class="dow">M</div><div class="dow">T</div><div class="dow">W</div><div class="dow">T</div><div class="dow">F</div><div class="dow">S</div><div class="dow">S</div>
+            <div class="mcell out"><span class="num">26</span></div>
+            <div class="mcell out"><span class="num">27</span></div>
+            <div class="mcell out"><span class="num">28</span></div>
+            <div class="mcell out"><span class="num">29</span></div>
+            <div class="mcell out"><span class="num">30</span></div>
+            <div class="mcell out"><span class="num">31</span></div>
+            <div class="mcell"><span class="num">1</span><div class="dots"><i class="mdot high"></i><i class="mdot low"></i></div></div>
+
+            <div class="mcell"><span class="num">2</span><div class="dots"><i class="mdot med"></i></div></div>
+            <div class="mcell"><span class="num">3</span><div class="dots"><i class="mdot high"></i><i class="mdot high"></i></div></div>
+            <div class="mcell"><span class="num">4</span><div class="dots"><i class="mdot low"></i></div></div>
+            <div class="mcell"><span class="num">5</span><div class="dots"><i class="mdot high"></i><i class="mdot med"></i></div></div>
+            <div class="mcell"><span class="num">6</span></div>
+            <div class="mcell"><span class="num">7</span><div class="dots"><i class="mdot low"></i></div></div>
+            <div class="mcell"><span class="num">8</span><div class="dots"><i class="mdot med"></i></div></div>
+
+            <div class="mcell"><span class="num">9</span><div class="dots"><i class="mdot high"></i><i class="mdot low"></i></div></div>
+            <div class="mcell"><span class="num">10</span><div class="dots"><i class="mdot med"></i></div></div>
+            <div class="mcell"><span class="num">11</span><div class="dots"><i class="mdot high"></i><i class="mdot low"></i></div></div>
+            <div class="mcell today"><span class="num">12</span><span class="mcount">4</span><div class="dots"><i class="mdot high"></i><i class="mdot high"></i><i class="mdot med"></i><i class="mdot low"></i></div></div>
+            <div class="mcell"><span class="num">13</span><div class="dots"><i class="mdot high"></i></div></div>
+            <div class="mcell"><span class="num">14</span></div>
+            <div class="mcell"><span class="num">15</span><div class="dots"><i class="mdot low"></i></div></div>
+
+            <div class="mcell"><span class="num">16</span><div class="dots"><i class="mdot med"></i></div></div>
+            <div class="mcell"><span class="num">17</span><div class="dots"><i class="mdot high"></i></div></div>
+            <div class="mcell"><span class="num">18</span><div class="dots"><i class="mdot high"></i><i class="mdot low"></i></div></div>
+            <div class="mcell"><span class="num">19</span><div class="dots"><i class="mdot med"></i></div></div>
+            <div class="mcell"><span class="num">20</span></div>
+            <div class="mcell"><span class="num">21</span><div class="dots"><i class="mdot low"></i></div></div>
+            <div class="mcell"><span class="num">22</span><div class="dots"><i class="mdot high"></i></div></div>
+          </div>
+          <p class="mono faint" style="font-size:.72rem;padding:12px 4px 0;">Dots show task load &amp; priority per day. Switch to Detail to see titles.</p>
+        </div>
+
+        <!-- month detail (chips) -->
+        <div data-panel="monthmode" data-tab-panel="mndt" style="display:none;">
+          <div class="month detail">
+            <div class="dow">Mon</div><div class="dow">Tue</div><div class="dow">Wed</div><div class="dow">Thu</div><div class="dow">Fri</div><div class="dow">Sat</div><div class="dow">Sun</div>
+            <div class="mcell"><span class="num">9</span><div class="mchip high">Spec review</div><div class="mchip low">Email</div></div>
+            <div class="mcell"><span class="num">10</span><div class="mchip med">1:1s</div></div>
+            <div class="mcell"><span class="num">11</span><div class="mchip high">Deep work</div><div class="mchip low">Read ch.5</div></div>
+            <div class="mcell today"><span class="num">12</span><div class="mchip high">Investor update</div><div class="mchip high">PR #482</div><div class="mmore">+2 more</div></div>
+            <div class="mcell"><span class="num">13</span><div class="mchip high">Gym</div></div>
+            <div class="mcell"><span class="num">14</span></div>
+            <div class="mcell"><span class="num">15</span><div class="mchip low">Plan week</div></div>
+
+            <div class="mcell"><span class="num">16</span><div class="mchip med">Vendor call</div></div>
+            <div class="mcell"><span class="num">17</span><div class="mchip high">Pitch rehearsal</div></div>
+            <div class="mcell"><span class="num">18</span><div class="mchip high">Demo day prep</div><div class="mchip low">Errands</div></div>
+            <div class="mcell"><span class="num">19</span><div class="mchip med">Investor sync</div></div>
+            <div class="mcell"><span class="num">20</span></div>
+            <div class="mcell"><span class="num">21</span><div class="mchip low">Gym</div></div>
+            <div class="mcell"><span class="num">22</span><div class="mchip high">Board update</div></div>
+          </div>
+          <p class="mono faint" style="font-size:.72rem;padding:12px 4px 0;">Each day shows its tasks. Open a day for hour-by-hour blocks &amp; checkboxes.</p>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+</body>
+</html>
