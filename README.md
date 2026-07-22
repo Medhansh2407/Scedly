@@ -4,6 +4,8 @@ AI-powered autonomous scheduler that learns your habits and manages your time th
 
 Not a calendar app with AI bolted on — it's a **behavioral scheduling agent** that adapts to how you actually work.
 
+> Current mode: personal local use. The repository includes a loopback-only local mode backed by SQLite so the app can be used without a hosted database. Production deployment is documented separately below and is not enabled by default.
+
 ## What It Does
 
 - **Natural language scheduling** — "Schedule gym tomorrow at 7am" or "I need 2 hours for math this week"
@@ -33,7 +35,8 @@ Not a calendar app with AI bolted on — it's a **behavioral scheduling agent** 
 └────────────────────────┬────────────────────────────┘
                          │
 ┌────────────────────────▼────────────────────────────┐
-│         PostgreSQL (Supabase) + Auth                 │
+│       Local SQLite / PostgreSQL (Supabase)           │
+│       Supabase Auth in non-local mode                │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -43,7 +46,7 @@ Not a calendar app with AI bolted on — it's a **behavioral scheduling agent** 
 |-------|-----------|
 | Backend | FastAPI, Python 3.13 |
 | Frontend | Next.js, TypeScript, Tailwind CSS |
-| Database | PostgreSQL (Supabase) + pgvector |
+| Database | SQLite for local use; PostgreSQL (Supabase) for production |
 | Auth | Supabase Auth (JWT) |
 | LLM | Groq (llama-3.1-8b + llama-3.3-70b), Gemini fallback |
 | Memory | mem0 + HuggingFace embeddings |
@@ -74,26 +77,75 @@ Not a calendar app with AI bolted on — it's a **behavioral scheduling agent** 
     └── tasks.md            # Implementation task breakdown
 ```
 
-## Setup
+## Local personal-use setup
 
-### Backend
+This is the recommended setup for using Scedly on one computer. It keeps the
+database on your machine and does not require a hosted database.
+
+### 1. Backend
+
+From PowerShell:
 
 ```bash
 cd backend
 python -m venv .venv
-.venv/Scripts/activate  # Windows
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-cp .env.example .env    # Fill in your keys
-uvicorn app.main:app --reload
 ```
 
-### Frontend
+Create `backend/.env.local` with only local configuration:
+
+```env
+DATABASE_URL=sqlite:///./scedly_local.db
+LOCAL_DEV_MODE=true
+```
+
+Start the API:
+
+```bash
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+The local mode creates one local user and accepts requests only from the
+loopback interface. It does not expose a public login or bypass auth for a
+remote client. The local database is stored in `backend/scedly_local.db` and
+is ignored by Git.
+
+### 2. Frontend
 
 ```bash
 cd frontend/scedly
 npm install
-npm run dev
 ```
+
+Create `frontend/scedly/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_LOCAL_DEV_MODE=true
+```
+
+Start the web app:
+
+```bash
+npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). The API documentation is
+available at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+### Local validation
+
+```bash
+cd backend
+python -m pytest -q
+
+cd ../frontend/scedly
+npx tsc --noEmit
+npm run build -- --webpack
+```
+
+The current local baseline is 232 passing backend tests.
 
 ### CLI
 
@@ -104,6 +156,24 @@ scedly login --key YOUR_API_KEY --url http://localhost:8000
 scedly chat "schedule gym tomorrow at 7am"
 scedly schedule
 ```
+
+## Before any production deployment
+
+The local SQLite mode is deliberately not a production setup. Before sharing
+the app with other users:
+
+1. Set `LOCAL_DEV_MODE=false` or remove it from the backend environment.
+2. Replace SQLite with a reachable PostgreSQL/Supabase `DATABASE_URL`.
+3. Configure Supabase Auth and JWT verification on the backend.
+4. Configure the frontend with `NEXT_PUBLIC_API_URL`,
+   `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+5. Store all server keys in the host environment settings, never in source.
+6. Configure production CORS, database migrations, backups, and HTTPS.
+7. Run the full backend tests and frontend build before release.
+
+The local `.env`, `.env.local`, `.env.production`, SQLite database, build
+output, and dependency folders are ignored by Git. Never replace these ignored
+files with committed secrets.
 
 ## Key Design Decisions
 
