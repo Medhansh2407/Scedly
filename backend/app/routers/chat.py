@@ -583,31 +583,68 @@ async def _dispatch_task_update(
 
     parsed = await parse_task(message, user_id=user_id)
 
-    search_term = parsed.title if parsed.title else message
+    # Determine if this is a "move/reschedule" request (time change)
+    is_reschedule = parsed.scheduled_date is not None
+
+    # For follow-ups like "move these after 5pm", find recently created tasks
+    search_term = parsed.title if parsed.title else ""
+    use_recent = not search_term or search_term.lower() in ("it", "them", "these", "those", "this", "the block", "the blocks", "these blocks", "those blocks")
 
     db = get_session()
     try:
-        # Try semantic search first, fall back to title matching, then raw message
-        matches = []
-        query_embedding = await get_embedding(search_term)
-        if query_embedding:
-            matches = search_by_embedding(db, user_id, query_embedding, statuses=None)
-        if not matches:
-            matches = search_by_title(db, user_id, search_term)
-        if not matches and search_term != message:
-            matches = search_by_title(db, user_id, message)
+        from app.crud.task_crud import list_tasks as list_all_tasks
+
+        if use_recent:
+            # Get the most recently created tasks (likely what user is referring to)
+            all_tasks = list_all_tasks(db, user_id)
+            # Sort by created_at desc, take tasks created in the last 5 minutes
+            now = datetime.utcnow()
+            recent = [t for t in all_tasks if t.created_at and (now - t.created_at).total_seconds() < 300]
+            matches = recent if recent else all_tasks[:4]
+        else:
+            matches = []
+            query_embedding = await get_embedding(search_term)
+            if query_embedding:
+                matches = search_by_embedding(db, user_id, query_embedding, statuses=None)
+            if not matches:
+                matches = search_by_title(db, user_id, search_term)
+            if not matches and search_term != message:
+                matches = search_by_title(db, user_id, message)
+
         if not matches:
             return f"I couldn't find a task matching '{search_term}'. Could you be more specific?"
 
-        task = matches[0]  # Best match (first result)
+        # Build updates — only include fields the user explicitly changed
         updates = {}
-
         if parsed.duration_minutes != 30 or not parsed.needs_duration_clarification:
             updates["duration_minutes"] = parsed.duration_minutes
-        if parsed.priority != task.priority:
-            updates["priority"] = parsed.priority
+
         if parsed.deadline is not None:
             updates["deadline"] = parsed.deadline
+
+        # Reschedule: update scheduled_start/end based on new time
+        if is_reschedule:
+            from datetime import timedelta
+            new_start = parsed.scheduled_date
+            count = 0
+            for task in matches:
+                dur = task.duration_minutes or 45
+                task_updates = {"scheduled_start": new_start, "scheduled_end": new_start + timedelta(minutes=dur), "updated_at": datetime.utcnow()}
+                update_task(db, task.id, task_updates)
+                new_start = new_start + timedelta(minutes=dur + 15)  # 15min gap
+                count += 1
+            return f"✅ Moved {count} task(s) to start at {parsed.scheduled_date.strftime('%I:%M %p')}."
+
+        # Non-reschedule update (priority, duration, etc.) — only first match
+        task = matches[0]
+        # Only change priority if user explicitly mentioned it (not parser default)
+        # Parser defaults to "Medium", so only apply if it differs AND the message hints at priority
+        priority_keywords = ("high", "low", "urgent", "important", "critical", "priority")
+        if any(kw in message.lower() for kw in priority_keywords) and parsed.priority != task.priority:
+            updates["priority"] = parsed.priority
+
+        if not updates:
+            return f"I'm not sure what to change about '{task.title}'. Could you be more specific?"
 
         updates["updated_at"] = datetime.utcnow()
         updated = update_task(db, task.id, updates)

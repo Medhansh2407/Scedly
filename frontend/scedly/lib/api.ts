@@ -1,4 +1,4 @@
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://mnfounder-scedly-api.hf.space';
 
 export async function apiFetch(path: string, token: string, opts: RequestInit = {}) {
   const res = await fetch(`${API}${path}`, {

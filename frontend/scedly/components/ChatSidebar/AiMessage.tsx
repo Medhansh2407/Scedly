@@ -12,7 +12,7 @@ export default function AiMessage({ content, streaming }: Props) {
         {content || (streaming ? '' : '…')}
         {streaming && <span className="inline-block w-[2px] h-3.5 bg-cyan ml-0.5 animate-pulse align-middle" />}
       </p>
-      {isError && <p className="font-mono text-[10px] text-text-tertiary mt-0.5">↳ check backend on port 8000</p>}
+      {isError && <p className="font-mono text-[10px] text-text-tertiary mt-0.5">↳ please try again in a moment</p>}
     </div>
   );
 }

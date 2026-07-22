@@ -27,7 +27,10 @@ export default function AppPage() {
     try { const d = await apiFetch('/calendar', token); setEvents(d.blocks || []); } catch {}
   }, [token]);
 
-  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void fetchEvents(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchEvents]);
 
   useEffect(() => {
     if (!token) return;
@@ -65,7 +68,7 @@ export default function AppPage() {
 
     let res: Response;
     try { res = await chatStream(message, token); } catch (err: unknown) { return fail(`Could not reach backend: ${err instanceof Error ? err.message : err}`); }
-    if (!res.ok) { const t = await res.text().catch(() => ''); return fail(`Backend error ${res.status}: ${t.slice(0, 120)}`); }
+    if (!res.ok) { return fail(res.status === 500 ? 'Something went wrong. Please try again.' : `Error ${res.status}: request failed.`); }
     if (!res.body) return fail('No response body.');
 
     const reader = res.body.getReader();

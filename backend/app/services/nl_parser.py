@@ -323,6 +323,9 @@ User: "schedule math as a block of 60 mins each total duration 2 hr"
 User: "3 sessions of 45 minutes coding"
 {"title":"coding","duration_text":"135 minutes","session_duration_text":"45 minutes","num_sessions":3,"priority":"Medium","energy_level":"High","energy_level_explicit":false,"flexibility":"flexible","deadline":"","scheduled_date":"","has_task_intent":true,"is_ambiguous":false,"clarifying_question":""}
 
+User: "3 hrs of CS broken into 4 blocks after 5pm"
+{"title":"CS","duration_text":"3 hrs","session_duration_text":"","num_sessions":4,"priority":"Medium","energy_level":"High","energy_level_explicit":false,"flexibility":"flexible","deadline":"","scheduled_date":"2026-06-18T17:00:00","has_task_intent":true,"is_ambiguous":false,"clarifying_question":""}
+
 User: "finish the report by Friday 5pm"
 {"title":"finish the report","duration_text":"","session_duration_text":"","num_sessions":1,"priority":"High","energy_level":"Medium","energy_level_explicit":false,"flexibility":"flexible","deadline":"2026-05-30T17:00:00","scheduled_date":"","has_task_intent":true,"is_ambiguous":false,"clarifying_question":""}
 

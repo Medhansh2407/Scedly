@@ -175,9 +175,9 @@ async def _do_summarize(
     if summary_text is None:
         return  # LLM call failed — logged inside _call_summarizer_llm
 
-    # Step 5: 300 words is a soft target — if the LLM couldn't compress
-    # further even after a strict retry, accept the full summary to preserve context.
-    # The retry in _call_summarizer_llm already attempted concise output.
+    # Step 5: enforce the hard storage limit even when the LLM ignores both
+    # the original prompt and the stricter retry instruction.
+    summary_text = _truncate_to_word_limit(summary_text)
 
     # Step 6: Get the last message id for the atomic update
     last_message_id = new_messages[-1].id

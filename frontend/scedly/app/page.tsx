@@ -1,17 +1,16 @@
 'use client';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const fadeUp = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 const stagger = { show: { transition: { staggerChildren: 0.1 } } };
 
 function useTheme() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  useEffect(() => {
-    const saved = localStorage.getItem('scedly-theme') as 'dark' | 'light' | null;
-    if (saved) setTheme(saved);
-  }, []);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window === 'undefined') return 'dark';
+    return (localStorage.getItem('scedly-theme') as 'dark' | 'light' | null) || 'dark';
+  });
   function toggle() {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
@@ -85,11 +84,11 @@ function Hero() {
         <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
           <TerminalWindow title="scedly — ~/today">
             <Line usr>draft the investor update, ~2h, due friday</Line>
-            <Line bot ok>✓ Scheduled "Investor update" — Thu 09:00–11:00</Line>
+            <Line bot ok>✓ Scheduled &quot;Investor update&quot; — Thu 09:00–11:00</Line>
             <Line comment>  ↳ High-focus work placed in your morning peak. Deadline Fri 17:00 — 1 day of buffer.</Line>
             <Line usr mt>i missed this morning</Line>
             <Line bot warn>↻ Rescheduled 2 tasks</Line>
-            <Line comment>  ↳ "Investor update" → Thu 14:00–16:00 · "Gym" → 18:00 (evening, low-energy)</Line>
+            <Line comment>  ↳ &quot;Investor update&quot; → Thu 14:00–16:00 · &quot;Gym&quot; → 18:00 (evening, low-energy)</Line>
             <Line usr mt>why thursday afternoon?</Line>
             <Line comment>  <span className="text-term-green font-bold">scedly&gt;</span> Morning filled up after the slip. Afternoon is your next focus block before the deadline.</Line>
             <Line usr mt><span className="inline-block w-2 h-[1.05em] bg-term-green align-[-2px] animate-blink" /></Line>

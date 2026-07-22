@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useSession } from '@/lib/hooks/useSession';
 import { apiFetch } from '@/lib/api';
 
+function errorText(error: unknown) {
+  return error instanceof Error ? error.message : 'Unknown error';
+}
+
 function showKeyModal(key: string, name: string) {
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)';
@@ -41,11 +45,7 @@ function showKeyModal(key: string, name: string) {
 export default function SettingsPage() {
   const { token, loading } = useSession();
   const ref = useRef<HTMLDivElement>(null);
-  const [theme, setTheme] = useState('dark');
-
-  useEffect(() => {
-    setTheme(localStorage.getItem('scedly-theme') || 'dark');
-  }, []);
+  const [theme] = useState(() => typeof window === 'undefined' ? 'dark' : localStorage.getItem('scedly-theme') || 'dark');
 
   useEffect(() => {
     if (!token) return;
@@ -94,7 +94,7 @@ export default function SettingsPage() {
                 try {
                   const data = await apiFetch('/api-keys', token, { method: 'POST', body: JSON.stringify({ name }) });
                   showKeyModal(data.key, name);
-                } catch (e: any) { alert('Failed to create key: ' + e.message); }
+                } catch (e: unknown) { alert('Failed to create key: ' + errorText(e)); }
               });
             } else if (text.includes('$9/mo')) {
               btn.addEventListener('click', async () => {
@@ -134,7 +134,7 @@ export default function SettingsPage() {
                   const data = await apiFetch(endpoint, token);
                   if (data.auth_url) window.location.href = data.auth_url;
                 }
-              } catch (e: any) { alert('Connection failed: ' + e.message); }
+              } catch (e: unknown) { alert('Connection failed: ' + errorText(e)); }
             });
           });
 
@@ -142,7 +142,7 @@ export default function SettingsPage() {
           const tzSelect = ref.current.querySelector('select.input') as HTMLSelectElement;
           if (tzSelect) {
             // Load current timezone from backend
-            apiFetch('/preferences', token).then((prefs: any) => {
+            apiFetch('/preferences', token).then((prefs: { timezone?: string }) => {
               const tz = prefs?.timezone || 'America/New_York';
               for (let i = 0; i < tzSelect.options.length; i++) {
                 if (tzSelect.options[i].textContent?.includes(tz) || tzSelect.options[i].value === tz) {
