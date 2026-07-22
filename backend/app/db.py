@@ -12,8 +12,10 @@ import os
 from dotenv import load_dotenv
 from sqlmodel import SQLModel, Session, create_engine
 
-# Load variables from .env into os.environ
-load_dotenv()
+# Load optional personal-use overrides first. These files are ignored by Git
+# and contain only local configuration, never credentials.
+load_dotenv('.env.local', override=False)
+load_dotenv('.env', override=False)
 
 # Required: the database connection string.
 # We fail loudly if it isn't set so we never accidentally run against the wrong DB.

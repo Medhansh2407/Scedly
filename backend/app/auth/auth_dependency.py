@@ -12,6 +12,7 @@ Usage in any router:
         return task_crud.list_tasks(session, user_id=str(user.id))
 """
 
+import os
 from typing import Optional
 
 from fastapi import Depends, HTTPException, Request, status
@@ -97,6 +98,24 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing or malformed Authorization header.",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Personal-use mode: accept one loopback-only token so the app can run
+    # against local SQLite without requiring a live Supabase project. This is
+    # disabled unless LOCAL_DEV_MODE is explicitly enabled.
+    if (
+        os.getenv('LOCAL_DEV_MODE', '').lower() == 'true'
+        and token == 'local-dev-token'
+        and request.client is not None
+        and request.client.host in {'127.0.0.1', 'localhost', '::1'}
+    ):
+        return user_crud.get_or_create(
+            session,
+            supabase_user_id='local-dev-user',
+            email='local@localhost',
+            display_name='Local user',
+            avatar_url=None,
+            provider='local',
         )
 
     # API key path

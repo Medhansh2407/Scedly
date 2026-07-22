@@ -186,7 +186,12 @@ See [DECISIONS.md](DECISIONS.md) for full product and architecture rationale.
 
 ## License
 
-Private. All rights reserved.
+Scedly is licensed under the [PolyForm Strict License 1.0.0](LICENSE).
+
+This is a source-available, restrictive license: personal, research, testing,
+and educational-institution use are permitted, but the license does not grant
+permission to distribute copies or create modified versions. Commercial or
+production use should be discussed with the author first.
 
 ## Future intention
 
