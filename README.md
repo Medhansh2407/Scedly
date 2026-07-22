@@ -117,3 +117,12 @@ See [DECISIONS.md](DECISIONS.md) for full product and architecture rationale.
 ## License
 
 Private. All rights reserved.
+
+## Future intention
+
+This project is currently being refined for personal local use. I may later
+deploy it and make it production-ready for real users, including a hosted
+PostgreSQL database, reliable authentication, secure environment management,
+production CORS, migrations, backups, HTTPS, monitoring, and deployment
+validation. Until that work is complete, the local SQLite mode is the intended
+way to run Scedly.
