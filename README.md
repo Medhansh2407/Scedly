@@ -201,3 +201,16 @@ PostgreSQL database, reliable authentication, secure environment management,
 production CORS, migrations, backups, HTTPS, monitoring, and deployment
 validation. Until that work is complete, the local SQLite mode is the intended
 way to run Scedly.
+
+##Why Scedly even exists?
+Every weekend I spent half an hour scheduling my coming week  , well that wasn't the frustrating part , the 
+frustrating part was having to drag the blocks manually all over the place when something unexpected happened like
+meetings, events or some pop quizzes and so this lead me to a realisation that I was wasting way more time making my 
+own time then actually doing something productive with that time , and so after trying numerous "AI Powered" apps I
+realised that maybe the calendar wasn't broken after all , it was just the process of scheduling and so thats why I 
+made Scedly , Scedly was my vision of a scheduling engine with calendar as an interface and well I decided to open 
+source this for anyone who wants to use it locally!
+
+
+
+
