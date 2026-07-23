@@ -202,7 +202,8 @@ production CORS, migrations, backups, HTTPS, monitoring, and deployment
 validation. Until that work is complete, the local SQLite mode is the intended
 way to run Scedly.
 
-##Why Scedly even exists?
+## Why Scedly even exists?
+
 Every weekend I spent half an hour scheduling my coming week  , well that wasn't the frustrating part , the 
 frustrating part was having to drag the blocks manually all over the place when something unexpected happened like
 meetings, events or some pop quizzes and so this lead me to a realisation that I was wasting way more time making my 
