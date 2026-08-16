@@ -1,38 +1,49 @@
 # Scedly
 
-Scedly is a local-first scheduling agent that turns natural-language intent into an adaptable plan. It treats the calendar as an interface for reasoning about time, constraints, and changing priorities.
+[![CI](https://github.com/Medhansh2407/Scedly/actions/workflows/ci.yml/badge.svg)](https://github.com/Medhansh2407/Scedly/actions/workflows/ci.yml)
 
-> Current status: personal-use prototype. Local mode uses SQLite and loopback-only access. No hosted deployment is enabled by default.
+Scedly is a local-first scheduling agent that turns natural-language intent into a constraint-aware calendar, then repairs the plan when priorities or available time change.
 
-## Why Scedly exists
+**[Try the zero-login guided demo](https://scedly.vercel.app/demo)** · [Open the product site](https://scedly.vercel.app) · [View the source](https://github.com/Medhansh2407/Scedly)
 
-Every weekend, I spent time arranging the coming week. The difficult part was not making the first plan; it was manually moving everything whenever an unexpected meeting, event, or deadline appeared. I wanted the scheduling process to respond to change instead of making the calendar another task to maintain.
+The guided demo is a safe, deterministic product tour with seeded tasks. It needs no account, API key, or persistent data. The authenticated application connects the same interface to the FastAPI scheduling and LLM backend.
 
-## What it does
+## What it demonstrates
 
-- Converts natural-language requests into scheduled tasks
-- Detects conflicts and reschedules when plans change
-- Uses behavioral memory to make scheduling more personal over time
-- Provides a web interface, CLI, and MCP integration
-- Supports calendar and messaging integrations in the wider application
+- Natural-language task extraction and scheduling
+- Deadline, working-window, energy, and conflict constraints
+- Missed-time recovery and partial-task continuation
+- Day, week, and month calendar views
+- Persistent preferences, chat history, and user-isolated tasks
+- Web, CLI, Telegram, calendar-sync, and MCP surfaces
 
-## Engineering decisions
+## Architecture
 
-- **Deterministic scheduling:** constraints and conflicts should be inspectable rather than hidden behind a single opaque model call.
-- **Mem0:** memory is kept as a separate concern so scheduling logic can remain testable.
-- **MCP:** the scheduling system can be used from development tools that support the Model Context Protocol.
-- **Local-first mode:** SQLite and loopback-only access make the current prototype easy to run without a hosted database.
+```mermaid
+flowchart LR
+    Web[Next.js web app] --> API[FastAPI API]
+    CLI[CLI] --> API
+    MCP[MCP server] --> API
+    Telegram[Telegram] --> API
+    API --> Engine[Deterministic scheduling engine]
+    API --> LLM[Groq with Gemini fallback]
+    API --> DB[(SQLite / PostgreSQL)]
+    API --> Memory[Mem0 memory]
+    API --> Calendar[Google / Microsoft calendars]
+```
 
-## Stack
+The scheduling engine owns hard constraints and conflict handling. The LLM translates conversational intent into structured operations; it does not silently override scheduling rules.
 
-- FastAPI and Python backend
-- Next.js, TypeScript, and Tailwind frontend
-- SQLite locally; PostgreSQL/Supabase for a future hosted configuration
-- Groq with Gemini fallback for language-model calls
-- Mem0 and HuggingFace embeddings for memory
-- Click/httpx CLI and a stdio MCP server
+## Try it in two minutes
+
+1. Open [scedly.vercel.app/demo](https://scedly.vercel.app/demo).
+2. Click **Schedule work**, **Repair the day**, **Partial progress**, or **Explain placement**.
+3. Watch the calendar and explanation update together.
+4. Use **Reset** to replay the tour.
 
 ## Run locally
+
+Tested with Python 3.13 and Node.js 24.
 
 ### Backend
 
@@ -41,14 +52,20 @@ cd backend
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+Copy-Item .env.example .env.local
 ```
 
-Create `backend/.env.local` with local-only settings:
+Set the minimal local configuration in `backend/.env.local`:
 
 ```env
 DATABASE_URL=sqlite:///./scedly_local.db
 LOCAL_DEV_MODE=true
+```
+
+Start the API:
+
+```powershell
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ### Frontend
@@ -62,11 +79,25 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 
 Open [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
+The guided demo and calendar UI work without external credentials. Free-form AI chat requires `GROQ_API_KEY` in `backend/.env.local`. Provider credentials always remain server-side.
+
+## Optional integrations
+
+| Capability | Required configuration | Needed for guided demo? |
+|---|---|---:|
+| Free-form AI chat | `GROQ_API_KEY` | No |
+| Gemini fallback | `GOOGLE_API_KEY` | No |
+| Hosted authentication | Supabase URL, anon key, JWT secret | No |
+| Long-term memory | `MEM0_API_KEY`, `HF_API_TOKEN` | No |
+| Google / Outlook sync | Provider OAuth credentials | No |
+| Telegram | Bot token and webhook secret | No |
+| Billing | Stripe test credentials | No |
+
 ## Validate
 
 ```powershell
 cd backend
-python -m pytest -q
+python -m pytest -ra
 ruff check app tests
 
 cd ../frontend/scedly
@@ -74,8 +105,26 @@ npm run lint
 npx tsc --noEmit
 npm run build -- --webpack
 npm audit
+
+cd ../../cli-package
+python -m pytest -q
+ruff check scedly tests
 ```
+
+The default backend suite is deterministic and credential-free. Four tests marked `integration` call Groq and run only when `GROQ_API_KEY` is configured:
+
+```powershell
+cd backend
+$env:GROQ_API_KEY="your-key"
+python -m pytest -m integration tests/test_nl_parser.py -ra
+```
+
+The same live checks are available through the manually triggered **Live LLM integration** GitHub Actions workflow, using the repository’s `GROQ_API_KEY` secret.
+
+## Project status
+
+Scedly is a portfolio-grade personal-use prototype. The deterministic scheduling core, API, CLI, authenticated web application, and guided demo are implemented. External provider integrations require their own sandbox credentials before production use.
 
 ## License
 
-Scedly is currently released under the [PolyForm Strict License 1.0.0](LICENSE). This is a source-available license, not an OSI-approved open-source license. Review the license before using, modifying, or redistributing the project.
+Scedly uses the [PolyForm Strict License 1.0.0](LICENSE). It is source-available, not OSI-approved open source. Review the license before using, modifying, or redistributing the project.
