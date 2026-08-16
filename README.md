@@ -103,7 +103,7 @@ ruff check app tests
 cd ../frontend/scedly
 npm run lint
 npx tsc --noEmit
-npm run build -- --webpack
+npm run build
 npm audit
 
 cd ../../cli-package
