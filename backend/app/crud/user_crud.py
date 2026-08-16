@@ -6,12 +6,13 @@ underscore-prefixed functions.
 """
 
 import uuid
-from datetime import datetime
 from typing import Optional
 
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from app.models.models import User
+from app.time_utils import utc_now
 
 
 # ============================================================================
@@ -90,7 +91,15 @@ def get_or_create(
             avatar_url=avatar_url,
             provider=provider,
         )
-        return _save(session, user)
+        try:
+            return _save(session, user)
+        except IntegrityError:
+            # Two first requests for the same authenticated user can arrive at
+            # once. The unique constraint chooses a winner; reuse that row.
+            session.rollback()
+            existing = _query_user_by_supabase_id(session, supabase_user_id)
+            if existing is None:
+                raise
 
     # Refresh profile fields from the latest JWT (cheap and keeps things in sync).
     existing.email = email
@@ -99,5 +108,5 @@ def get_or_create(
     if avatar_url is not None:
         existing.avatar_url = avatar_url
     existing.provider = provider
-    existing.last_login_at = datetime.utcnow()
+    existing.last_login_at = utc_now()
     return _save(session, existing)

@@ -9,6 +9,8 @@ Example .env:
 """
 
 import os
+from collections.abc import Generator
+
 from dotenv import load_dotenv
 from sqlmodel import SQLModel, Session, create_engine
 
@@ -52,3 +54,9 @@ def get_session() -> Session:
     first argument so the caller controls the transaction lifecycle.
     """
     return Session(engine)
+
+
+def get_session_dependency() -> Generator[Session, None, None]:
+    """Yield a request-scoped session and always close it after the response."""
+    with Session(engine) as session:
+        yield session

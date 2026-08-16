@@ -23,6 +23,7 @@ from app.models.models import (
 from app.models.scheduled_block import ScheduledBlock
 #the class Scheduled block gives the schema of the task which is scheduled 
 from app.services.scheduling_engine import schedule_task
+from app.time_utils import utc_now
 #this is the function to schedule the task 
 
 
@@ -180,7 +181,7 @@ def  resolve_or_escalate(
             resolved=False,
             action="escalated",
             escalation_reason=(
-                f"Lower-priority task is rigid and cannot be moved automatically."
+                "Lower-priority task is rigid and cannot be moved automatically."
             ),
             suggestions=_build_suggestions(existing_blocks, conflict),
         )
@@ -188,7 +189,7 @@ def  resolve_or_escalate(
     # Attempt auto-resolution: move the lower-priority flexible task
     # Create a synthetic Task for schedule_task()
     if now is None:
-        now = datetime.utcnow()
+        now = utc_now()
 
     synthetic_task = Task(
         id=lower_priority_block.task_id,

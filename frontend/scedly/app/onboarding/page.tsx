@@ -33,7 +33,7 @@ export default function OnboardingPage() {
               if (!token) return;
               e.preventDefault();
               try {
-                await apiFetch('/preferences/onboarding-complete', token, { method: 'POST' });
+                await apiFetch('/preferences/onboarding-complete', token, { method: 'PUT' });
               } catch {}
               window.location.href = '/app';
             });
@@ -44,7 +44,9 @@ export default function OnboardingPage() {
 
   return (
     <>
+      {/* eslint-disable-next-line @next/next/no-css-tags */}
       <link rel="stylesheet" href="/styles.css" />
+      {/* eslint-disable-next-line @next/next/no-css-tags */}
       <link rel="stylesheet" href="/app.css" />
       <div ref={ref} data-theme="dark" />
     </>

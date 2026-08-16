@@ -14,14 +14,18 @@ import json
 import logging
 import os
 import secrets
+from datetime import timedelta
 from typing import Optional
 
 import httpx
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from app.db import get_session
-from app.models.models import ChannelLink
+from app.auth.auth_dependency import get_current_user
+from app.db import get_session, get_session_dependency
+from app.models.models import ChannelLink, User
+from app.time_utils import utc_now
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/telegram", tags=["telegram"])
@@ -64,6 +68,7 @@ def _create_linking_code(session: Session, chat_id: str) -> str:
     existing = session.exec(stmt).first()
     if existing:
         existing.linking_code = code
+        existing.created_at = utc_now()
     else:
         link = ChannelLink(
             user_id="",  # not linked yet
@@ -107,6 +112,20 @@ def _forward_to_chat(user_id: str, message: str, api_key: str) -> str:
 @router.post("/webhook")
 async def telegram_webhook(request: Request):
     """Handle incoming Telegram webhook updates."""
+    webhook_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET")
+    local_dev = os.environ.get("LOCAL_DEV_MODE", "").lower() == "true"
+    if not webhook_secret and not local_dev:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Telegram webhook secret is not configured.",
+        )
+    provided_secret = request.headers.get("x-telegram-bot-api-secret-token", "")
+    if webhook_secret and not secrets.compare_digest(provided_secret, webhook_secret):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid Telegram webhook secret.",
+        )
+
     body = await request.json()
 
     message = body.get("message")
@@ -191,7 +210,7 @@ def _forward_to_chat_internal(session: Session, user_id: str, message: str) -> s
     try:
         result = _forward_to_chat(user_id, message, raw_key)
     finally:
-        revoke_key(session, str(key_row.id), user_id)
+        revoke_key(session, key_row.id, user_id)
     return result
 
 
@@ -200,64 +219,47 @@ def _forward_to_chat_internal(session: Session, user_id: str, message: str) -> s
 # ============================================================================
 
 
+class TelegramLinkRequest(BaseModel):
+    code: str
+
+
 @router.post("/link")
-async def link_telegram_account(request: Request):
+def link_telegram_account(
+    body: TelegramLinkRequest,
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session_dependency),
+):
     """
     Link a Telegram chat to a user account using the one-time code.
     Called from the web app: POST /telegram/link {"code": "abc123"}
     Requires auth (JWT or API key).
     """
-    from app.auth.auth_dependency import get_current_user
-    from fastapi import Depends
 
-    body = await request.json()
-    code = body.get("code")
+    code = body.code.strip()
     if not code:
-        return {"error": "Missing code"}, 400
-
-    # Extract user from auth header
-    from app.auth.jwt_verifier import verify_supabase_jwt, InvalidTokenError
-    auth_header = request.headers.get("authorization", "")
-    token = auth_header.replace("Bearer ", "")
-
-    session = get_session()
-    try:
-        # Determine user_id from token
-        if token.startswith("sk-"):
-            from app.crud.api_key_crud import verify_api_key
-            key_row = verify_api_key(session, token)
-            if not key_row:
-                return {"error": "Invalid auth"}
-            user_id = key_row.user_id
-        else:
-            try:
-                claims = verify_supabase_jwt(token)
-                user_id = claims.get("sub", "")
-                from app.crud.user_crud import get_by_supabase_id
-                user = get_by_supabase_id(session, user_id)
-                if user:
-                    user_id = str(user.id)
-            except InvalidTokenError:
-                return {"error": "Invalid auth"}
-
-        # Find the channel link with this code
-        stmt = select(ChannelLink).where(
-            ChannelLink.channel == "telegram",
-            ChannelLink.linking_code == code,
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Missing code.",
         )
-        link = session.exec(stmt).first()
-        if not link:
-            return {"error": "Invalid or expired linking code"}
 
-        # Complete the link
-        link.user_id = user_id
-        link.linking_code = None
-        session.commit()
+    stmt = select(ChannelLink).where(
+        ChannelLink.channel == "telegram",
+        ChannelLink.linking_code == code,
+    )
+    link = session.exec(stmt).first()
+    if not link or link.created_at < utc_now() - timedelta(minutes=10):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired linking code.",
+        )
 
-        # Notify on Telegram
-        _send_message(int(link.external_id), "✅ Account linked! You can now manage tasks from here.")
+    link.user_id = str(user.id)
+    link.linking_code = None
+    session.add(link)
+    session.commit()
 
-        return {"linked": True, "channel": "telegram"}
-
-    finally:
-        session.close()
+    _send_message(
+        int(link.external_id),
+        "✅ Account linked! You can now manage tasks from here.",
+    )
+    return {"linked": True, "channel": "telegram"}

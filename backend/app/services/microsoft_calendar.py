@@ -16,12 +16,14 @@ import logging
 import os
 from datetime import datetime, timedelta
 from typing import Optional
+from urllib.parse import urlencode
 
 import httpx
 from sqlmodel import Session
 
 from app.models.models import Task
 from app.services.google_calendar import CalendarToken  # reuse same token model
+from app.time_utils import utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -36,17 +38,16 @@ SCOPES = "Calendars.ReadWrite offline_access"
 # ============================================================================
 
 
-def get_microsoft_auth_url(user_id: str, redirect_uri: str) -> str:
+def get_microsoft_auth_url(state: str, redirect_uri: str) -> str:
     """Generate Microsoft OAuth consent URL."""
     client_id = os.environ.get("MICROSOFT_CLIENT_ID", "")
-    return (
-        f"{MS_AUTH_URL}?"
-        f"client_id={client_id}&"
-        f"redirect_uri={redirect_uri}&"
-        f"response_type=code&"
-        f"scope={SCOPES}&"
-        f"state={user_id}"
-    )
+    return f"{MS_AUTH_URL}?{urlencode({
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'scope': SCOPES,
+        'state': state,
+    })}"
 
 
 def exchange_microsoft_code(code: str, redirect_uri: str) -> dict:
@@ -76,7 +77,7 @@ def _refresh_microsoft_token(session: Session, token: CalendarToken) -> Calendar
     token.access_token = data["access_token"]
     if "refresh_token" in data:
         token.refresh_token = data["refresh_token"]
-    token.expires_at = datetime.utcnow() + timedelta(seconds=data.get("expires_in", 3600))
+    token.expires_at = utc_now() + timedelta(seconds=data.get("expires_in", 3600))
     session.add(token)
     session.commit()
     session.refresh(token)
@@ -89,7 +90,7 @@ def _get_valid_token(session: Session, user_id: str) -> Optional[CalendarToken]:
     token = session.get(CalendarToken, token_id)
     if not token:
         return None
-    if token.expires_at <= datetime.utcnow():
+    if token.expires_at <= utc_now():
         token = _refresh_microsoft_token(session, token)
     return token
 

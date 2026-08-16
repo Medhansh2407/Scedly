@@ -9,11 +9,11 @@ Requirements: 7.6, 7.7
 """
 
 import uuid
-from datetime import datetime
 
 from sqlmodel import Session, select
 
 from app.models.models import ChatSession
+from app.time_utils import utc_now
 
 
 # ============================================================================
@@ -63,7 +63,7 @@ def increment_message_count(session: Session, session_id: str) -> int:
         raise ValueError(f"ChatSession {session_id!r} not found")
 
     chat_session.message_count += 1
-    chat_session.updated_at = datetime.utcnow()
+    chat_session.updated_at = utc_now()
     session.add(chat_session)
     session.commit()
     session.refresh(chat_session)
@@ -91,7 +91,7 @@ def update_summary(
 
     chat_session.summary = summary
     chat_session.summary_last_message_id = last_message_id
-    chat_session.updated_at = datetime.utcnow()
+    chat_session.updated_at = utc_now()
     session.add(chat_session)
     session.commit()
     session.refresh(chat_session)

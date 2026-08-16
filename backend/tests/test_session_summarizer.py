@@ -11,7 +11,6 @@ Tests the rolling session summarization logic:
 """
 
 import uuid
-from datetime import datetime, timedelta
 from unittest.mock import patch, AsyncMock, MagicMock
 
 import pytest

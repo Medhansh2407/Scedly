@@ -10,12 +10,12 @@ Requirements: 3.7, 3.8
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 
 from app.auth.auth_dependency import get_current_user
 from app.crud.task_crud import list_scheduled_tasks
-from app.db import get_session
+from app.db import get_session_dependency
 from app.models.models import User
 
 router = APIRouter(prefix="/calendar", tags=["calendar"])
@@ -31,7 +31,7 @@ def get_calendar(
     start_date: Optional[datetime] = Query(None, description="Start of date range (inclusive)"),
     end_date: Optional[datetime] = Query(None, description="End of date range (exclusive)"),
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     GET /calendar — Get scheduled task blocks for the calendar view.

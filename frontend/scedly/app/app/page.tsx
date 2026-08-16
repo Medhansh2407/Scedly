@@ -97,8 +97,8 @@ export default function AppPage() {
   return (
     <div className="h-screen flex flex-col bg-bg overflow-hidden">
       <NavBar displayName={user?.user_metadata?.full_name} avatarUrl={user?.user_metadata?.avatar_url} trialDaysLeft={9} />
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <CalendarToolbar currentDate={currentDate} view={view} onViewChange={setView} onPrev={() => nav(-1)} onNext={() => nav(1)} onToday={() => setCurrentDate(new Date())} />
           {view === 'day' && <DayView date={currentDate} events={events} onComplete={handleComplete} />}
           {view === 'week' && <WeekView date={currentDate} events={events} onComplete={handleComplete} />}

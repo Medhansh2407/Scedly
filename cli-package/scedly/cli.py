@@ -2,6 +2,7 @@
 
 import json
 import sys
+from datetime import date, datetime, time, timedelta
 
 import click
 import httpx
@@ -19,7 +20,7 @@ def _headers() -> dict:
 
 
 def _url(path: str) -> str:
-    return f"{get_base_url()}{path}"
+    return f"{get_base_url().rstrip('/')}/{path.lstrip('/')}"
 
 
 @click.group(invoke_without_command=True)
@@ -32,8 +33,10 @@ def main(ctx):
 
 
 @main.command()
-@click.option("--key", prompt="API key (sk-...)", hide_input=False)
-@click.option("--url", prompt="Base URL", default="http://localhost:8000", show_default=True)
+@click.option("--key", prompt="API key (sk-...)", hide_input=True)
+@click.option(
+    "--url", prompt="Base URL", default="http://localhost:8000", show_default=True
+)
 def login(key: str, url: str):
     """Save your API key and server URL."""
     save_config(api_key=key, base_url=url)
@@ -73,34 +76,58 @@ def chat(message: tuple):
 @main.command()
 def schedule():
     """Show today's schedule."""
-    resp = httpx.get(_url("/calendar/today"), headers=_headers(), timeout=15)
+    today_start = datetime.combine(date.today(), time.min)
+    tomorrow_start = today_start + timedelta(days=1)
+    resp = httpx.get(
+        _url("/calendar"),
+        headers=_headers(),
+        params={
+            "start_date": today_start.isoformat(),
+            "end_date": tomorrow_start.isoformat(),
+        },
+        timeout=15,
+    )
     if resp.status_code != 200:
         click.echo(f"[Error {resp.status_code}] {resp.text}")
         return
-    tasks = resp.json()
+    tasks = resp.json().get("blocks", [])
     if not tasks:
         click.echo("Nothing scheduled today.")
         return
     for t in tasks:
-        click.echo(f"  {t['scheduled_start'][:5]} – {t['scheduled_end'][:5]}  {t['title']}")
+        click.echo(f"  {t['start'][11:16]} – {t['end'][11:16]}  {t['title']}")
 
 
 @main.command()
-@click.option("--status", type=click.Choice(["all", "scheduled", "completed", "unscheduled"]), default="all")
+@click.option(
+    "--status",
+    type=click.Choice(["all", "scheduled", "completed", "unscheduled"]),
+    default="all",
+)
 def tasks(status: str):
     """List your tasks."""
-    params = {} if status == "all" else {"status": status}
+    params = {} if status == "all" else {"status_filter": status}
     resp = httpx.get(_url("/tasks"), headers=_headers(), params=params, timeout=15)
     if resp.status_code != 200:
         click.echo(f"[Error {resp.status_code}] {resp.text}")
         return
-    task_list = resp.json()
+    payload = resp.json()
+    if status == "all":
+        task_list = [
+            task
+            for section in ("pending", "in_progress", "done_this_week")
+            for task in payload.get(section, [])
+        ]
+    else:
+        task_list = payload.get("tasks", [])
     if not task_list:
         click.echo("No tasks found.")
         return
     for t in task_list:
         icon = "✓" if t.get("status") == "completed" else "○"
-        click.echo(f"  {icon} {t['title']} ({t.get('duration_minutes', '?')}min, {t.get('priority', '?')})")
+        click.echo(
+            f"  {icon} {t['title']} ({t.get('duration_minutes', '?')}min, {t.get('priority', '?')})"
+        )
 
 
 if __name__ == "__main__":

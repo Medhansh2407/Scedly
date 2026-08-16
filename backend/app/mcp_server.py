@@ -14,14 +14,12 @@ import json
 import os
 import sys
 from datetime import datetime
-from typing import Any
 
-from sqlmodel import Session
 
 # Add parent to path so we can import app modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.crud import api_key_crud, task_crud, preferences_crud
+from app.crud import api_key_crud, task_crud
 from app.db import get_session
 from app.models.models import Priority, EnergyLevel, Flexibility, TaskStatus, Task
 
@@ -198,7 +196,7 @@ def handle_update_task(args: dict, user_id: str) -> str:
 
 
 def handle_get_schedule(args: dict, user_id: str) -> str:
-    from datetime import date, time, timedelta
+    from datetime import date, time
     session = get_session()
     try:
         today_start = datetime.combine(date.today(), time.min)

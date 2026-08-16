@@ -15,7 +15,6 @@ Tests cover:
 import uuid
 from datetime import datetime, time, timedelta
 
-import pytest
 
 from app.models.models import (
     EnergyLevel,

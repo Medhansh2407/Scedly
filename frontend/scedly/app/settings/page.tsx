@@ -168,7 +168,9 @@ export default function SettingsPage() {
 
   return (
     <>
+      {/* eslint-disable-next-line @next/next/no-css-tags */}
       <link rel="stylesheet" href="/styles.css" />
+      {/* eslint-disable-next-line @next/next/no-css-tags */}
       <link rel="stylesheet" href="/app.css" />
       <div ref={ref} data-theme={theme} />
     </>

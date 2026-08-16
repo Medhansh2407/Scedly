@@ -137,7 +137,6 @@ async def _do_summarize(
     """
     from app.db import get_session as get_db_session#the db connection 
     from app.crud import chat_session_crud
-    from app.crud.chat_crud import list_session_messages
 
     # Step 1: Check if threshold is reached
     db = get_db_session()

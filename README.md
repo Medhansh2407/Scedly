@@ -56,6 +56,7 @@ LOCAL_DEV_MODE=true
 ```powershell
 cd frontend/scedly
 npm install
+Copy-Item .env.example .env.local
 npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
@@ -66,10 +67,13 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000).
 ```powershell
 cd backend
 python -m pytest -q
+ruff check app tests
 
 cd ../frontend/scedly
+npm run lint
 npx tsc --noEmit
 npm run build -- --webpack
+npm audit
 ```
 
 ## License

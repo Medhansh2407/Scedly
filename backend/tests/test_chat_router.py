@@ -5,11 +5,16 @@ Tests the classify_intent function and the full POST /chat SSE endpoint
 with mocked LLM responses and services.
 """
 
-import json
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch, ANY
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.routers.chat import ChatIntent, classify_intent, _should_store_memory
+
+
+def _close_background_coroutine(coroutine):
+    """Consume coroutine objects when create_task is mocked in synchronous HTTP tests."""
+    coroutine.close()
+    return MagicMock()
 
 
 # ============================================================================
@@ -203,7 +208,7 @@ async def test_classify_intent_includes_recent_messages_in_payload(mock_build_co
     )
     mock_parse_call.return_value = {"intent": "task_create", "confidence": 0.85}
 
-    result = await classify_intent(
+    await classify_intent(
         "yes confirm that",
         user_id="user-1",
         session_id="session-1",
@@ -300,7 +305,7 @@ async def test_chat_endpoint_query_chat_streams_response(app_client, mock_user, 
     with patch("app.routers.chat.classify_intent", new_callable=AsyncMock) as mock_classify, \
          patch("app.routers.chat.build_context", new_callable=AsyncMock) as mock_ctx, \
          patch("app.routers.chat.stream_llm_response") as mock_stream, \
-         patch("app.routers.chat.chat_crud") as mock_chat_crud, \
+         patch("app.routers.chat.chat_crud"), \
          patch("app.routers.chat.chat_session_crud") as mock_session_crud, \
          patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock), \
          patch("app.routers.chat.add_memory", new_callable=AsyncMock):
@@ -341,7 +346,7 @@ async def test_chat_endpoint_task_create_dispatches(app_client, mock_user, mock_
     """POST /chat with task_create intent should dispatch to task creation."""
     with patch("app.routers.chat.classify_intent", new_callable=AsyncMock) as mock_classify, \
          patch("app.routers.chat._dispatch_task_create", new_callable=AsyncMock) as mock_dispatch, \
-         patch("app.routers.chat.chat_crud") as mock_chat_crud, \
+         patch("app.routers.chat.chat_crud"), \
          patch("app.routers.chat.chat_session_crud") as mock_session_crud, \
          patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock), \
          patch("app.routers.chat.add_memory", new_callable=AsyncMock):
@@ -403,7 +408,7 @@ async def test_chat_endpoint_increments_message_count(app_client, mock_user, moc
     """POST /chat should increment session message count for each persisted message."""
     with patch("app.routers.chat.classify_intent", new_callable=AsyncMock) as mock_classify, \
          patch("app.routers.chat._dispatch_task_create", new_callable=AsyncMock) as mock_dispatch, \
-         patch("app.routers.chat.chat_crud") as mock_chat_crud, \
+         patch("app.routers.chat.chat_crud"), \
          patch("app.routers.chat.chat_session_crud") as mock_session_crud, \
          patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock), \
          patch("app.routers.chat.add_memory", new_callable=AsyncMock):
@@ -427,11 +432,11 @@ async def test_chat_endpoint_fires_summarizer(app_client, mock_user, mock_db_ses
     """POST /chat should fire the session summarizer as a background task."""
     with patch("app.routers.chat.classify_intent", new_callable=AsyncMock) as mock_classify, \
          patch("app.routers.chat._dispatch_task_update", new_callable=AsyncMock) as mock_dispatch, \
-         patch("app.routers.chat.chat_crud") as mock_chat_crud, \
+         patch("app.routers.chat.chat_crud"), \
          patch("app.routers.chat.chat_session_crud") as mock_session_crud, \
-         patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock) as mock_summarize, \
+         patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock), \
          patch("app.routers.chat.add_memory", new_callable=AsyncMock), \
-         patch("app.routers.chat.asyncio.create_task") as mock_create_task:
+         patch("app.routers.chat.asyncio.create_task", side_effect=_close_background_coroutine) as mock_create_task:
 
         mock_classify.return_value = ChatIntent.TASK_UPDATE
         mock_dispatch.return_value = "✅ Updated task."
@@ -454,11 +459,11 @@ async def test_chat_endpoint_stores_memory_for_preference_messages(
     """POST /chat should store mem0 memory when message contains preference info."""
     with patch("app.routers.chat.classify_intent", new_callable=AsyncMock) as mock_classify, \
          patch("app.routers.chat._dispatch_preferences", new_callable=AsyncMock) as mock_dispatch, \
-         patch("app.routers.chat.chat_crud") as mock_chat_crud, \
+         patch("app.routers.chat.chat_crud"), \
          patch("app.routers.chat.chat_session_crud") as mock_session_crud, \
          patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock), \
-         patch("app.routers.chat.add_memory", new_callable=AsyncMock) as mock_add_mem, \
-         patch("app.routers.chat.asyncio.create_task") as mock_create_task:
+         patch("app.routers.chat.add_memory", new_callable=AsyncMock), \
+         patch("app.routers.chat.asyncio.create_task", side_effect=_close_background_coroutine) as mock_create_task:
 
         mock_classify.return_value = ChatIntent.PREFERENCES
         mock_dispatch.return_value = "✅ Updated preferences."
@@ -479,7 +484,7 @@ async def test_chat_endpoint_returns_sse_content_type(app_client, mock_user, moc
     """POST /chat should return text/event-stream content type."""
     with patch("app.routers.chat.classify_intent", new_callable=AsyncMock) as mock_classify, \
          patch("app.routers.chat._dispatch_task_create", new_callable=AsyncMock) as mock_dispatch, \
-         patch("app.routers.chat.chat_crud") as mock_chat_crud, \
+         patch("app.routers.chat.chat_crud"), \
          patch("app.routers.chat.chat_session_crud") as mock_session_crud, \
          patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock), \
          patch("app.routers.chat.add_memory", new_callable=AsyncMock):
@@ -504,7 +509,7 @@ async def test_chat_endpoint_structured_response_has_done_event(
     """Structured intent responses should end with a 'done' SSE event."""
     with patch("app.routers.chat.classify_intent", new_callable=AsyncMock) as mock_classify, \
          patch("app.routers.chat._dispatch_missed_tasks", new_callable=AsyncMock) as mock_dispatch, \
-         patch("app.routers.chat.chat_crud") as mock_chat_crud, \
+         patch("app.routers.chat.chat_crud"), \
          patch("app.routers.chat.chat_session_crud") as mock_session_crud, \
          patch("app.routers.chat.maybe_summarize", new_callable=AsyncMock), \
          patch("app.routers.chat.add_memory", new_callable=AsyncMock):

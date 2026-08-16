@@ -14,7 +14,7 @@ full chat record is preserved even if we trim what the LLM sees.
 import uuid
 from typing import Optional
 
-from sqlmodel import Session, desc, select
+from sqlmodel import Session, col, desc, select
 
 from app.models.models import ChatMessage
 
@@ -29,6 +29,7 @@ def _query_session_messages(
     session_id: str,
     user_id: str,
     limit: Optional[int] = None,
+    offset: int = 0,
 ) -> list[ChatMessage]:
     """
     All messages for a (session_id, user_id) pair, oldest first.
@@ -41,13 +42,20 @@ def _query_session_messages(
         ChatMessage.user_id == user_id,
     )
 
-    if limit is None:
-        statement = statement.order_by(ChatMessage.created_at)#SO GET THE LDEST - NEWEST FLOW
+    if offset < 0:
+        raise ValueError("offset must be non-negative")
+    if limit is not None and limit < 0:
+        raise ValueError("limit must be non-negative")
+
+    if limit is None and offset == 0:
+        statement = statement.order_by(col(ChatMessage.created_at))#SO GET THE LDEST - NEWEST FLOW
         return list(session.exec(statement).all())
 
     # Grab the N newest, then flip back to oldest-first so the LLM sees a normal
     # conversation flow.
-    statement = statement.order_by(desc(ChatMessage.created_at)).limit(limit)
+    statement = statement.order_by(desc(col(ChatMessage.created_at))).offset(offset)
+    if limit is not None:
+        statement = statement.limit(limit)
     #so here we are using the desc function so as to select the msg from the latest 
     #to the [limit] amount of messages back 
     newest_first = list(session.exec(statement).all())

@@ -17,15 +17,15 @@ from sqlmodel import Session
 
 from app.auth.auth_dependency import get_current_user
 from app.crud import task_crud
-from app.db import get_session
+from app.db import get_session_dependency
 from app.models.models import (
     EnergyLevel,
     Flexibility,
     Priority,
-    Task,
     TaskStatus,
     User,
 )
+from app.time_utils import utc_now
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -56,7 +56,7 @@ class TaskUpdateRequest(BaseModel):
 def list_tasks(
     status_filter: Optional[TaskStatus] = None,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     GET /tasks — List all tasks for the current user.
@@ -80,7 +80,7 @@ def list_tasks(
 def get_task(
     task_id: uuid.UUID,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     GET /tasks/{task_id} — Get a single task by ID.
@@ -101,7 +101,7 @@ def update_task(
     task_id: uuid.UUID,
     body: TaskUpdateRequest,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     PATCH /tasks/{task_id} — Update task attributes.
@@ -132,7 +132,7 @@ def update_task(
 
     # Validate deadline not in the past
     if "deadline" in updates and updates["deadline"] is not None:
-        if updates["deadline"] < datetime.utcnow():
+        if updates["deadline"] < utc_now():
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Deadline cannot be in the past.",
@@ -154,7 +154,7 @@ def update_task(
 def delete_task(
     task_id: uuid.UUID,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     DELETE /tasks/{task_id} — Delete a task.
@@ -183,7 +183,7 @@ def delete_task(
 def complete_task(
     task_id: uuid.UUID,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     POST /tasks/{task_id}/complete — Mark a task as complete.
@@ -212,7 +212,7 @@ def complete_task(
 def mark_task_missed(
     task_id: uuid.UUID,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     POST /tasks/{task_id}/missed — Mark a task as missed.

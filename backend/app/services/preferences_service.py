@@ -40,7 +40,6 @@ from sqlmodel import Session
 
 
 from app.crud.preferences_crud import (
-    get_or_create_preferences,
     update_focus_hours as crud_update_focus_hours,
     update_working_window as crud_update_working_window,
 )

@@ -13,23 +13,24 @@ import json
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator
 
 import pytz
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlmodel import Session
 
 from app.auth.auth_dependency import get_current_user
 from app.crud import chat_crud, chat_session_crud
-from app.db import get_session
+from app.db import get_session, get_session_dependency
 from app.models.models import User
 from app.services import llm_client
 from app.services.context_builder import Intent, build_context
 from app.services.memory_service import add_memory
 from app.services.session_summarizer import maybe_summarize
 from app.services.sse_service import LLMPrompt, SSEStreamError, stream_llm_response
+from app.time_utils import utc_now
 
 
 def _user_now(timezone: str = "UTC") -> datetime:
@@ -244,7 +245,6 @@ async def _create_split_blocks(
     from app.services.memory_service import get_relevant_memories
     from app.models.models import Task, TaskStatus, Flexibility
     from app.models.scheduled_block import ScheduledBlock
-    from datetime import timedelta
 
     db = get_session()
     try:
@@ -385,7 +385,6 @@ async def _dispatch_task_create(
     from app.crud.task_crud import create_task, list_scheduled_tasks
     from app.models.models import Task, TaskStatus
     from app.models.scheduled_block import ScheduledBlock
-    from datetime import datetime
 
     # Check if this is a multi-task message
     # Load preferences early for timezone
@@ -437,7 +436,6 @@ async def _dispatch_task_create(
             from app.crud.preferences_crud import get_or_create_preferences
             from app.crud.task_crud import create_task, list_scheduled_tasks, update_task
             from app.services.embedding_service import get_embedding
-            from datetime import datetime as dt
             preferences = get_or_create_preferences(db, user_id)
             scheduled_tasks = list_scheduled_tasks(db, user_id)
             existing_blocks = [
@@ -579,7 +577,6 @@ async def _dispatch_task_update(
     from app.services.nl_parser import parse_task
     from app.services.embedding_service import get_embedding
     from app.crud.task_crud import search_by_title, search_by_embedding, update_task
-    from datetime import datetime
 
     parsed = await parse_task(message, user_id=user_id)
 
@@ -598,7 +595,7 @@ async def _dispatch_task_update(
             # Get the most recently created tasks (likely what user is referring to)
             all_tasks = list_all_tasks(db, user_id)
             # Sort by created_at desc, take tasks created in the last 5 minutes
-            now = datetime.utcnow()
+            now = utc_now()
             recent = [t for t in all_tasks if t.created_at and (now - t.created_at).total_seconds() < 300]
             matches = recent if recent else all_tasks[:4]
         else:
@@ -629,7 +626,7 @@ async def _dispatch_task_update(
             count = 0
             for task in matches:
                 dur = task.duration_minutes or 45
-                task_updates = {"scheduled_start": new_start, "scheduled_end": new_start + timedelta(minutes=dur), "updated_at": datetime.utcnow()}
+                task_updates = {"scheduled_start": new_start, "scheduled_end": new_start + timedelta(minutes=dur), "updated_at": utc_now()}
                 update_task(db, task.id, task_updates)
                 new_start = new_start + timedelta(minutes=dur + 15)  # 15min gap
                 count += 1
@@ -646,7 +643,7 @@ async def _dispatch_task_update(
         if not updates:
             return f"I'm not sure what to change about '{task.title}'. Could you be more specific?"
 
-        updates["updated_at"] = datetime.utcnow()
+        updates["updated_at"] = utc_now()
         updated = update_task(db, task.id, updates)
 
         if updated:
@@ -664,7 +661,6 @@ async def _dispatch_task_delete(
     from app.services.nl_parser import parse_task
     from app.services.embedding_service import get_embedding
     from app.crud.task_crud import search_by_title, search_by_embedding, delete_task, list_tasks
-    from app.models.models import TaskStatus
 
     # Bulk delete: "remove all tasks", "clear my calendar", "delete everything"
     lower = message.lower()
@@ -716,7 +712,6 @@ async def _dispatch_missed_tasks(
     from app.crud.preferences_crud import get_or_create_preferences
     from app.models.models import TaskStatus
     from app.models.scheduled_block import ScheduledBlock
-    from datetime import datetime
 
     db = get_session()
     try:
@@ -814,9 +809,7 @@ async def _dispatch_preferences(
     from datetime import time as dt_time
     from app.services.preferences_service import update_working_window, update_focus_hours
     from app.crud.task_crud import list_scheduled_tasks
-    from app.crud.preferences_crud import get_or_create_preferences
     from app.models.scheduled_block import ScheduledBlock
-    from datetime import datetime
 
     pref_type = raw.get("preference_type", "other")
 
@@ -854,7 +847,7 @@ async def _dispatch_preferences(
                     session=db,
                     scheduled_tasks=scheduled_tasks,
                     existing_blocks=existing_blocks,
-                    now=datetime.utcnow(),
+                    now=utc_now(),
                 )
                 msg = f"✅ Updated working window to {start.strftime('%H:%M')} – {end.strftime('%H:%M')}."
                 if reschedule_result and reschedule_result.moved:
@@ -921,9 +914,9 @@ def _should_store_memory(message: str) -> bool:
 @router.get("/chat/history")
 async def chat_history(
     session_id: str = "web",
-    limit: int = 20,
+    limit: int = Query(default=20, ge=1, le=200),
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """Return the last `limit` messages for a session, oldest-first."""
     messages = chat_crud.list_session_messages(db, session_id, str(user.id), limit=limit)
@@ -934,7 +927,7 @@ async def chat_history(
 async def chat_endpoint(
     request: ChatRequest,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     Main chat endpoint. Accepts a message, classifies intent, dispatches to

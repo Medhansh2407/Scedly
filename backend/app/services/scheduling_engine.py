@@ -19,7 +19,6 @@ from typing import Optional
 from app.models.models import (
     EnergyLevel,
     Flexibility,
-    Priority,
     Task,
     TaskStatus,
     UserPreferences,

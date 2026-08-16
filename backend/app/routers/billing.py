@@ -32,7 +32,8 @@ from sqlmodel import Session
 
 from app.auth import get_current_user
 from app.crud import user_crud
-from app.db import get_session
+from app.db import get_session_dependency
+from app.time_utils import utc_from_timestamp
 from app.models.models import User
 from app.services import billing_service
 
@@ -134,7 +135,7 @@ def get_billing_status(user: User = Depends(get_current_user)):
 def create_checkout_session(
     body: CheckoutRequest,
     user: User = Depends(get_current_user),
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_session_dependency),
 ):
     """
     Create a Stripe Checkout Session for a Pro subscription and return its URL.
@@ -185,7 +186,7 @@ def create_checkout_session(
 @router.post("/portal", response_model=PortalResponse)
 def create_portal_session(
     user: User = Depends(get_current_user),
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_session_dependency),
 ):
     """Open the Stripe-hosted billing portal for managing payment & invoices."""
     stripe = _require_stripe()
@@ -208,7 +209,7 @@ def create_portal_session(
 
 
 def _ts_to_dt(ts: Optional[int]) -> Optional[datetime]:
-    return datetime.utcfromtimestamp(ts) if ts else None
+    return utc_from_timestamp(ts) if ts else None
 
 
 def _apply_subscription(session: Session, customer_id: str, sub: dict) -> None:
@@ -230,7 +231,7 @@ def _apply_subscription(session: Session, customer_id: str, sub: dict) -> None:
 @router.post("/webhook")
 async def stripe_webhook(
     request: Request,
-    session: Session = Depends(get_session),
+    session: Session = Depends(get_session_dependency),
 ):
     """
     Receive Stripe events. The signature is verified against

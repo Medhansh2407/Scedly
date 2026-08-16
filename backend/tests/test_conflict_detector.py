@@ -16,7 +16,6 @@ Tests cover:
 import uuid
 from datetime import datetime, time, timedelta
 
-import pytest
 
 from app.models.models import (
     EnergyLevel,
@@ -28,7 +27,6 @@ from app.models.models import (
 from app.models.scheduled_block import ScheduledBlock
 from app.services.conflict_detector import (
     Conflict,
-    ConflictResolution,
     detect_conflicts,
     resolve_or_escalate,
 )

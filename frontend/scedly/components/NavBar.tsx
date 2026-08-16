@@ -27,7 +27,12 @@ export default function NavBar({ displayName, avatarUrl, trialDaysLeft }: NavBar
           <span className="dark:hidden">🌙</span><span className="hidden dark:inline">☀️</span>
         </button>
         <div className="w-8 h-8 rounded-[9px] bg-gradient-to-br from-cyan to-[#7C4DFF] flex items-center justify-center text-[11px] font-bold text-white">
-          {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full rounded-[9px] object-cover" /> : initials}
+          {avatarUrl ? (
+            // Remote OAuth avatar hosts vary by provider and cannot be safely
+            // allow-listed for Next's image optimizer.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" className="w-full h-full rounded-[9px] object-cover" />
+          ) : initials}
         </div>
       </div>
     </nav>

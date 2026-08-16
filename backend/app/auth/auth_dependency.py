@@ -160,11 +160,7 @@ def get_current_user_optional(
     Use this on routes that have public and authenticated variants
     (e.g., a landing page that shows different content when logged in).
     """
-    token = _extract_bearer_token(request)
-    if token is None:
-        return None
     try:
-        claims = verify_supabase_jwt(token)
-    except InvalidTokenError:
+        return get_current_user(request, session)
+    except HTTPException:
         return None
-    return _user_from_claims(session, claims)

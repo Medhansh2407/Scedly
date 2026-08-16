@@ -11,7 +11,7 @@ Tests cover:
 """
 
 import uuid
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 from unittest.mock import MagicMock, patch
 
 import pytest

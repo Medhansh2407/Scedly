@@ -16,12 +16,12 @@ from sqlmodel import Session
 
 from app.auth.auth_dependency import get_current_user
 from app.crud.preferences_crud import get_or_create_preferences
-from app.db import get_session
-from app.models.models import User, UserPreferences
+from app.db import get_session_dependency
+from app.models.models import User
 from app.services.preferences_service import update_focus_hours, update_working_window
 from app.crud.task_crud import list_scheduled_tasks
 from app.models.scheduled_block import ScheduledBlock
-from datetime import datetime
+from app.time_utils import utc_now
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 
@@ -68,7 +68,7 @@ class EnergyWindowsRequest(BaseModel):
 @router.get("")
 def get_preferences(
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     GET /preferences — Get the current user's scheduling preferences.
@@ -84,7 +84,7 @@ def get_preferences(
 def set_working_window(
     body: WorkingWindowRequest,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     PUT /preferences/working-window — Update the user's daily working window.
@@ -127,7 +127,7 @@ def set_working_window(
             session=db,
             scheduled_tasks=scheduled_tasks,
             existing_blocks=existing_blocks,
-            now=datetime.utcnow(),
+            now=utc_now(),
         )
     except ValueError as e:
         raise HTTPException(
@@ -146,7 +146,7 @@ def set_working_window(
 def set_focus_hours(
     body: FocusHoursRequest,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     PUT /preferences/focus-hours — Enable or disable focus hours.
@@ -198,7 +198,7 @@ def set_focus_hours(
 def set_energy_windows(
     body: EnergyWindowsRequest,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     PUT /preferences/energy-windows — Update personalised energy time windows.
@@ -237,7 +237,7 @@ def set_energy_windows(
     preferences.high_energy_window_end = high_end
     preferences.low_energy_window_start = low_start
     preferences.low_energy_window_end = low_end
-    preferences.updated_at = datetime.utcnow()
+    preferences.updated_at = utc_now()
 
     db.add(preferences)
     db.commit()
@@ -249,7 +249,7 @@ def set_energy_windows(
 @router.put("/onboarding-complete")
 def set_onboarding_complete(
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """
     PUT /preferences/onboarding-complete — Mark onboarding as completed.
@@ -260,7 +260,7 @@ def set_onboarding_complete(
 
     preferences = get_or_create_preferences(db, user_id)
     preferences.onboarding_completed = True
-    preferences.updated_at = datetime.utcnow()
+    preferences.updated_at = utc_now()
 
     db.add(preferences)
     db.commit()
@@ -277,7 +277,7 @@ class TimezoneRequest(BaseModel):
 def update_timezone(
     body: TimezoneRequest,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_session_dependency),
 ):
     """PUT /preferences/timezone — Update user timezone."""
     import pytz
@@ -289,7 +289,7 @@ def update_timezone(
     user_id = str(user.id)
     preferences = get_or_create_preferences(db, user_id)
     preferences.timezone = body.timezone
-    preferences.updated_at = datetime.utcnow()
+    preferences.updated_at = utc_now()
     db.add(preferences)
     db.commit()
     return {"timezone": preferences.timezone}

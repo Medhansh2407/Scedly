@@ -10,9 +10,8 @@ Tests cover:
 """
 
 import uuid
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 
-import pytest
 
 from app.models.models import (
     EnergyLevel,

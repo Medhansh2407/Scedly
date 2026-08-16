@@ -8,13 +8,15 @@ Enums are stored as strings in the database.
 import uuid
 from datetime import datetime, time, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Optional
 
 from pgvector.sqlalchemy import Vector
 from pydantic import model_validator
 from sqlalchemy import Column
 from sqlmodel import Field, SQLModel
 from pydantic import ConfigDict #this library is responsible for the validation rules 
+
+from app.time_utils import utc_now
 
 
 #so what does config dict - for my reference is that 
@@ -119,8 +121,8 @@ class User(SQLModel, table=True):
     avatar_url: Optional[str] = None             # Profile picture URL
     provider: str                                # "google" | "github" (most recent sign-in)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    last_login_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    last_login_at: datetime = Field(default_factory=utc_now)
 
     # ---- Billing / plan (Stripe) ----
     # Baseline tier. New users get a 14-day Pro trial; effective gating is
@@ -130,7 +132,7 @@ class User(SQLModel, table=True):
     # When the 14-day Pro trial ends. After this, with no active paid
     # subscription, the effective plan becomes FREE (no charge).
     trial_ends_at: Optional[datetime] = Field(
-        default_factory=lambda: datetime.utcnow() + timedelta(days=14)
+        default_factory=lambda: utc_now() + timedelta(days=14)
     )
 
     # Stripe linkage. Populated on first checkout / via webhook.
@@ -169,8 +171,8 @@ class Task(SQLModel, table=True):
     status: TaskStatus = TaskStatus.UNSCHEDULED
     scheduled_start: Optional[datetime] = None  # None when unscheduled
     scheduled_end: Optional[datetime] = None  # None when unscheduled
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
     completed_at: Optional[datetime] = None
     completion_order: Optional[int] = None  # Order in which task was completed (1 = first task completed that day)
     missed_at: Optional[datetime] = None
@@ -283,7 +285,7 @@ class ApiKey(SQLModel, table=True):
     key_hash: str = Field(unique=True, index=True)
     name: str  # e.g. "Claude Code", "Telegram"
     revoked: bool = False
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
 
 
 class ChannelLink(SQLModel, table=True):
@@ -297,7 +299,7 @@ class ChannelLink(SQLModel, table=True):
     channel: str  # "telegram" | "slack"
     external_id: str = Field(index=True)  # telegram chat_id or slack user_id
     linking_code: Optional[str] = None  # one-time code, cleared after linking
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
 
 
 class ChatSession(SQLModel, table=True):
@@ -315,8 +317,8 @@ class ChatSession(SQLModel, table=True):
     summary: Optional[str] = None                              # rolling paragraph, max ~300 words
     summary_last_message_id: Optional[uuid.UUID] = None        # last message included in summary
     message_count: int = 0                                     # incremented on each new message
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
 
 
 class ChatMessage(SQLModel, table=True):
@@ -333,7 +335,7 @@ class ChatMessage(SQLModel, table=True):
     user_id: str = Field(index=True)
     role: str  # "user" | "assistant"
     content: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     intent: Optional[str] = None  # Classified intent, for debugging
 
 
@@ -376,9 +378,9 @@ class UserPreferences(SQLModel, table=True):
     #   168 = I'm flexible (deadline within 7 days)
     outside_window_threshold_hours: int = 48
 
-    created_at: datetime  =Field(default_factory=datetime.utcnow)
+    created_at: datetime  =Field(default_factory=utc_now)
 
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=utc_now)
     
     #this is to store the last time the user preferences was created. , so say user changed something maybe his focu zone 
     #work hours ,task priorities - you want to know when those were changed for conflict resoluton 

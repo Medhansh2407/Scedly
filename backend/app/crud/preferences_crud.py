@@ -15,13 +15,13 @@ Design notes:
   for any user who hasn't set preferences yet — see the model defaults.
 """
 
-import uuid
-from datetime import datetime, time
+from datetime import time
 from typing import Optional
 
 from sqlmodel import Session, select
 
 from app.models.models import UserPreferences
+from app.time_utils import utc_now
 
 
 # ============================================================================
@@ -102,7 +102,7 @@ def update_working_window(
     preferences = get_or_create_preferences(session, user_id)
     preferences.working_window_start = start
     preferences.working_window_end = end
-    preferences.updated_at = datetime.utcnow()
+    preferences.updated_at = utc_now()
     return _save(session, preferences)
 
 
@@ -117,7 +117,7 @@ def update_timezone(
 
     #so if no user preference set - default that to the utc timezone
     preferences.timezone = timezone
-    preferences.updated_at = datetime.utcnow()
+    preferences.updated_at = utc_now()
     return _save(session, preferences)
 
 
@@ -159,5 +159,5 @@ def update_focus_hours(
     preferences.focus_hours_enabled = enabled
     preferences.focus_hours_start = final_start
     preferences.focus_hours_end = final_end
-    preferences.updated_at = datetime.utcnow()
+    preferences.updated_at = utc_now()
     return _save(session, preferences)

@@ -6,8 +6,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "Fira Code", "monospace"],
+        sans: ["system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Consolas", "monospace"],
       },
       colors: {
         bg: "var(--bg, #0F1117)",

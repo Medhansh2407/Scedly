@@ -6,7 +6,7 @@
     var saved = localStorage.getItem("scedly-theme");
     var theme = saved || "dark"; // dark default
     document.documentElement.setAttribute("data-theme", theme);
-  } catch (e) {
+  } catch {
     document.documentElement.setAttribute("data-theme", "dark");
   }
 })();
@@ -15,7 +15,7 @@ function toggleTheme() {
   var html = document.documentElement;
   var next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
   html.setAttribute("data-theme", next);
-  try { localStorage.setItem("scedly-theme", next); } catch (e) {}
+  try { localStorage.setItem("scedly-theme", next); } catch {}
 }
 
 document.addEventListener("DOMContentLoaded", function () {

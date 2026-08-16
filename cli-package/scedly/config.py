@@ -1,7 +1,6 @@
 """Config storage — API key and base URL persisted in ~/.config/scedly/"""
 
 import json
-import os
 from pathlib import Path
 
 # ─── CHANGE THIS folder name when you pick a name ───
@@ -16,13 +15,16 @@ DEFAULT_BASE_URL = "http://localhost:8000"
 
 def _load() -> dict:
     if CONFIG_FILE.exists():
-        return json.loads(CONFIG_FILE.read_text())
+        try:
+            return json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
     return {}
 
 
 def _save(data: dict):
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    CONFIG_FILE.write_text(json.dumps(data, indent=2))
+    CONFIG_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def get_api_key() -> str | None:
@@ -37,5 +39,5 @@ def save_config(api_key: str, base_url: str | None = None):
     data = _load()
     data["api_key"] = api_key
     if base_url:
-        data["base_url"] = base_url
+        data["base_url"] = base_url.rstrip("/")
     _save(data)

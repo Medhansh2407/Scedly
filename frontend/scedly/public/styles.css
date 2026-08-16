@@ -38,8 +38,8 @@ ul { list-style: none; }
 :root,
 [data-theme="dark"] {
   /* fonts */
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, "SF Mono", monospace;
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
   --font-pixel: "Press Start 2P", var(--font-mono);
 
   /* base surfaces — deep, slightly cool charcoal */

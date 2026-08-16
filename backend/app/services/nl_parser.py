@@ -29,6 +29,7 @@ from pydantic import BaseModel
 
 from app.models.models import EnergyLevel, Flexibility, Priority
 from app.services import llm_client
+from app.time_utils import utc_now
 
 
 # ============================================================================
@@ -429,7 +430,7 @@ async def parse_task(
     ParsedTask
         A fully-populated ParsedTask with defaults applied.
     """
-    reference_time = now or datetime.utcnow()
+    reference_time = now or utc_now()
     user_payload = (
         f"now: {reference_time.isoformat()}\n"
         f"message: {message}"

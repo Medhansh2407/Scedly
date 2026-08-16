@@ -160,7 +160,11 @@ async def get_relevant_memories(user_id: str, query: str) -> list[Memory]:
         return []
 
     try:
-        results = client.search(query=query, user_id=user_id)
+        response = client.search(query=query, filters={"user_id": user_id})
+        # mem0ai 2.x wraps matches in {"results": [...]}; retain support for
+        # the older list response so existing self-hosted deployments continue
+        # to work during upgrades.
+        results = response.get("results", []) if isinstance(response, dict) else response
 
         memories: list[Memory] = []#memory is the class we initialised on the to
         #so these memories would be a list of dict like ["id" , "memory" , "metadata" , "score"]
@@ -223,11 +227,11 @@ async def add_memory(user_id: str, content: str, metadata: dict[str, Any] | None
     """
     if not content or not content.strip():
         logger.debug("Skipping empty memory content for user %s", user_id)
-        return[]
+        return
 
     client = _get_client()
     if client is None:
-        return[]
+        return
 
     try:
         messages = [{"role": "user", "content": content}]

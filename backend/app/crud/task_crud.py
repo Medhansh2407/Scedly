@@ -12,13 +12,15 @@ transactions.
 """
 
 import uuid
+import math
 from datetime import datetime, timedelta
 from typing import Optional
 
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 from sqlalchemy import text
 
 from app.models.models import Task, TaskStatus
+from app.time_utils import utc_now
 
 
 # ============================================================================
@@ -51,13 +53,13 @@ def _query_scheduled_tasks(
     """User tasks that have a scheduled time block, optionally within a range."""
     valid_task = select(Task).where(
         Task.user_id == user_id,
-        Task.scheduled_start.is_not(None),
-        Task.scheduled_end.is_not(None),
+        col(Task.scheduled_start).is_not(None),
+        col(Task.scheduled_end).is_not(None),
     )
     if start_date is not None:
-        valid_task = valid_task.where(Task.scheduled_start >= start_date)
+        valid_task = valid_task.where(col(Task.scheduled_start) >= start_date)
     if end_date is not None:
-        valid_task = valid_task.where(Task.scheduled_start < end_date)
+        valid_task = valid_task.where(col(Task.scheduled_start) < end_date)
     return list(session.exec(valid_task).all())
 
 
@@ -74,7 +76,7 @@ def _query_tasks_matching_title(
     pattern = f"%{title_pattern.lower()}%"
     statement = select(Task).where(
         Task.user_id == user_id,
-        Task.title.ilike(pattern),
+        col(Task.title).ilike(pattern),
     )
     return list(session.exec(statement).all())
 
@@ -83,10 +85,14 @@ def _query_tasks_matching_title(
 #save a task in the db - is this functions work
 def _save(session: Session, task: Task) -> Task:
     """Persist changes to a task and return the refreshed instance."""
-    session.add(task)
-    session.commit()
-    session.refresh(task)
-    return task
+    try:
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+        return task
+    except Exception:
+        session.rollback()
+        raise
 
 
 # ============================================================================
@@ -168,9 +174,40 @@ def search_by_embedding(
         statuses = [TaskStatus.SCHEDULED, TaskStatus.IN_PROGRESS]
 
     status_list = [s.value for s in statuses]
+
+    # SQLite has no pgvector cosine operator. Local-first mode still needs
+    # semantic matching, so compute cosine similarity in-process for the
+    # user's small candidate set.
+    if session.bind is not None and session.bind.dialect.name != "postgresql":
+        candidates = _query_user_tasks(session, user_id)
+        allowed_statuses = set(statuses)
+
+        def cosine_similarity(task: Task) -> float:
+            embedding = task.embedding
+            if (
+                embedding is None
+                or len(embedding) == 0
+                or len(embedding) != len(query_embedding)
+            ):
+                return float("-inf")
+            dot_product = sum(a * b for a, b in zip(embedding, query_embedding))
+            task_norm = math.sqrt(sum(value * value for value in embedding))
+            query_norm = math.sqrt(sum(value * value for value in query_embedding))
+            if task_norm == 0 or query_norm == 0:
+                return float("-inf")
+            return dot_product / (task_norm * query_norm)
+
+        ranked = [
+            task
+            for task in candidates
+            if task.status in allowed_statuses and task.embedding is not None
+        ]
+        ranked.sort(key=cosine_similarity, reverse=True)
+        return ranked[:limit]
+
     embedding_str = f"[{','.join(str(x) for x in query_embedding)}]"
 
-    result = session.exec(
+    result = session.execute(
         text("""
             SELECT id FROM tasks
             WHERE user_id = :user_id
@@ -215,7 +252,7 @@ def list_tasks_by_section(session: Session, user_id: str) -> dict[str, list[Task
 
     # Start of the current week (Monday 00:00 UTC).
     # Timezone-aware bucketing comes later when UserPreferences is wired in.
-    now = datetime.utcnow()
+    now = utc_now()
     week_start = (now - timedelta(days=now.weekday())).replace(
         hour=0, minute=0, second=0, microsecond=0
     )
@@ -267,14 +304,37 @@ def update_task(
     if task is None:
         return None
 
-    #field means the section like in the id section the id is?- thats the value of that section
-    
-    for field, value in updates.items():
-        if field in _PROTECTED_FIELDS:
-            continue
-        setattr(task, field, value)
+    safe_updates = {
+        field: value
+        for field, value in updates.items()
+        if field not in _PROTECTED_FIELDS
+    }
+    candidate_data = task.model_dump()
+    candidate_data.update(safe_updates)
 
-    task.updated_at = datetime.utcnow()
+    # Correlated schedule fields must be validated as one state. Assignment
+    # validation field-by-field can reject a valid duration/start change while
+    # the object still contains the old scheduled_end.
+    scheduled_start = candidate_data.get("scheduled_start")
+    if scheduled_start is None:
+        candidate_data["scheduled_end"] = None
+    elif (
+        "scheduled_end" not in safe_updates
+        and {"scheduled_start", "duration_minutes"} & safe_updates.keys()
+    ):
+        candidate_data["scheduled_end"] = scheduled_start + timedelta(
+            minutes=candidate_data["duration_minutes"]
+        )
+
+    candidate_data["updated_at"] = utc_now()
+    validated = Task.model_validate(candidate_data)
+
+    fields_to_apply = set(safe_updates) | {"updated_at"}
+    if candidate_data.get("scheduled_end") != task.scheduled_end:
+        fields_to_apply.add("scheduled_end")
+    for field in fields_to_apply:
+        object.__setattr__(task, field, getattr(validated, field))
+
     return _save(session, task)
 
 
@@ -284,7 +344,7 @@ def mark_complete(session: Session, task_id: uuid.UUID) -> Optional[Task]:
     if task is None:
         return None
 
-    now = datetime.utcnow()
+    now = utc_now()
     # Bypass pydantic validators by using __dict__ directly for schedule clearing
     object.__setattr__(task, 'scheduled_end', None)
     object.__setattr__(task, 'scheduled_start', None)
@@ -309,8 +369,8 @@ def _check_parent_completion(session: Session, parent_id: uuid.UUID) -> None:
         parent = session.get(Task, parent_id)
         if parent and parent.status != TaskStatus.COMPLETED:
             parent.status = TaskStatus.COMPLETED
-            parent.completed_at = datetime.utcnow()
-            parent.updated_at = datetime.utcnow()
+            parent.completed_at = utc_now()
+            parent.updated_at = utc_now()
             _save(session, parent)
 
 
@@ -319,7 +379,7 @@ def mark_missed(session: Session, task_id: uuid.UUID) -> Optional[Task]:
     task = session.get(Task, task_id)
     if task is None:
         return None
-    now = datetime.utcnow()
+    now = utc_now()
     task.status = TaskStatus.MISSED
     task.missed_at = now
     task.updated_at = now
@@ -369,23 +429,31 @@ def split_partial_task(
     if task is None:
         return None, None
 
+    if time_spent_minutes <= 0:
+        raise ValueError("time_spent_minutes must be positive")
+
     original_duration = task.duration_minutes
     remaining_minutes = original_duration - time_spent_minutes
 
     if remaining_minutes <= 0:
         # User did all or more than planned — just mark complete
-        task.status = TaskStatus.COMPLETED
-        task.completed_at = datetime.utcnow()
-        task.updated_at = datetime.utcnow()
-        return _save(session, task), None
+        return mark_complete(session, task_id), None
 
     # Shrink the original to actual time spent and mark complete
-    task.duration_minutes = time_spent_minutes
-    task.scheduled_end = task.scheduled_start + timedelta(minutes=time_spent_minutes)
-    task.status = TaskStatus.COMPLETED
-    task.completed_at = datetime.utcnow()
-    task.updated_at = datetime.utcnow()
-    completed_task = _save(session, task)
+    completed_at = utc_now()
+    completed_updates = {
+        "duration_minutes": time_spent_minutes,
+        "status": TaskStatus.COMPLETED,
+        "completed_at": completed_at,
+        "updated_at": completed_at,
+    }
+    if task.scheduled_start is not None:
+        completed_updates["scheduled_end"] = task.scheduled_start + timedelta(
+            minutes=time_spent_minutes
+        )
+    completed_task = update_task(session, task_id, completed_updates)
+    if completed_task is None:  # Defensive: the task was fetched above.
+        return None, None
 
     # Create continuation task for the remaining time
     continuation = Task(
@@ -417,7 +485,6 @@ def delete_task(session:Session , task_id:uuid.UUID) -> Optional[Task]:
     task = session.get(Task , task_id)
     if task is None:
         return None 
-    now = datetime.utcnow()
     session.delete(task)
     session.commit()
     #so dont at the delete at - that is useless

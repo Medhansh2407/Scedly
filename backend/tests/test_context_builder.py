@@ -10,7 +10,7 @@ Tests the per-intent context assembly logic, ensuring:
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch, AsyncMock
 
 from app.services.context_builder import (
     Intent,
@@ -189,7 +189,7 @@ class TestBuildContext:
         """Intent classification should also be minimal."""
         mock_recent.return_value = []
 
-        ctx = await build_context(
+        await build_context(
             user_id="user-1",
             session_id="session-1",
             current_message="What time is my meeting?",
@@ -270,7 +270,7 @@ class TestBuildContext:
         mock_memories.return_value = []
         mock_recent.return_value = []
 
-        ctx = await build_context(
+        await build_context(
             user_id="user-1",
             session_id="session-1",
             current_message="Why was gym at 7am?",

@@ -8,14 +8,23 @@ Requirements: 2.1
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from app.db import init_db
+from app.routers.api_keys import router as api_keys_router
+from app.routers.billing import router as billing_router
+from app.routers.calendar import router as calendar_router
+from app.routers.calendar_sync import router as calendar_sync_router
+from app.routers.chat import router as chat_router
+from app.routers.preferences import router as preferences_router
+from app.routers.tasks import router as tasks_router
+from app.routers.telegram_bot import router as telegram_router
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +68,11 @@ app = FastAPI(
 
 # ALLOWED_ORIGINS env var: comma-separated list of frontend URLs.
 # Defaults to * for local dev; set in production to your Vercel URL.
-import os
-_origins = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
+_origins = [
+    origin.strip()
+    for origin in os.environ.get("ALLOWED_ORIGINS", "*").split(",")
+    if origin.strip()
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -124,15 +136,6 @@ async def generic_error_handler(request: Request, exc: Exception):
 # ============================================================================
 # Include routers
 # ============================================================================
-
-from app.routers.chat import router as chat_router
-from app.routers.tasks import router as tasks_router
-from app.routers.preferences import router as preferences_router
-from app.routers.calendar import router as calendar_router
-from app.routers.api_keys import router as api_keys_router
-from app.routers.telegram_bot import router as telegram_router
-from app.routers.calendar_sync import router as calendar_sync_router
-from app.routers.billing import router as billing_router
 
 app.include_router(chat_router)
 app.include_router(tasks_router)

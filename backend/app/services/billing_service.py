@@ -20,10 +20,10 @@ Effective plan resolution (highest wins):
 """
 
 from datetime import datetime
-from typing import Optional
 import math
 
 from app.models.models import PlanTier, User
+from app.time_utils import utc_now
 
 # Stripe subscription statuses that grant access right now.
 _ACTIVE_STRIPE_STATUSES = {"active", "trialing", "past_due"}
@@ -34,8 +34,8 @@ PRO_ONLY_CHANNELS = {"cli", "telegram", "slack", "mcp", "google_chat"}
 
 
 def _now() -> datetime:
-    # Model defaults use naive UTC (datetime.utcnow); stay consistent.
-    return datetime.utcnow()
+    # Model defaults use naive UTC; stay consistent with persisted rows.
+    return utc_now()
 
 
 def has_active_subscription(user: User) -> bool:

@@ -6,7 +6,7 @@
 # =============================================================================
 
 # --- Web framework + ASGI server ---
-fastapi==0.115.5
+fastapi==0.141.1
 uvicorn[standard]==0.32.1
 
 # --- Database (SQLModel = Pydantic + SQLAlchemy) ---
@@ -16,18 +16,17 @@ SQLAlchemy==2.0.36
 pgvector==0.3.6
 
 # --- Auth (Supabase JWT verification) ---
-PyJWT[crypto]==2.10.1
-python-jose[cryptography]==3.3.0
+PyJWT[crypto]==2.13.0
 httpx==0.28.1
 
 # --- LLM + memory ---
-openai==1.57.0
+openai==3.1.0
 groq==0.13.0
 google-generativeai==0.8.3
-mem0ai==0.1.32
+mem0ai==2.0.18
 
 # --- Config / env ---
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 pydantic==2.10.3
 pydantic-settings==2.7.0
 
@@ -35,9 +34,9 @@ pydantic-settings==2.7.0
 stripe==11.4.1
 
 # --- Forms / multipart for file uploads (optional, but FastAPI will warn) ---
-python-multipart==0.0.20
+python-multipart==0.0.32
 
 # --- Testing ---
-pytest==8.3.4
-pytest-asyncio==0.25.0
+pytest==9.1.1
+pytest-asyncio==1.4.0
 hypothesis==6.123.2

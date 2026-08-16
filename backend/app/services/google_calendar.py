@@ -12,16 +12,17 @@ Setup:
 4. Token stored per-user in CalendarToken table
 """
 
-import json
 import logging
 import os
 from datetime import datetime, timedelta
 from typing import Optional
+from urllib.parse import urlencode
 
 import httpx
-from sqlmodel import Field, Session, SQLModel, select
+from sqlmodel import Field, Session, SQLModel
 
 from app.models.models import Task
+from app.time_utils import utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -74,19 +75,18 @@ the refresh token is never sent to the google's api
 # ============================================================================
 
 
-def get_google_auth_url(user_id: str, redirect_uri: str) -> str:
+def get_google_auth_url(state: str, redirect_uri: str) -> str:
     """Generate the Google OAuth consent URL."""
     client_id = os.environ.get("GOOGLE_CALENDAR_CLIENT_ID", "")
-    return (
-        f"{GOOGLE_AUTH_URL}?"
-        f"client_id={client_id}&"
-        f"redirect_uri={redirect_uri}&"
-        f"response_type=code&"
-        f"scope={SCOPES}&"
-        f"access_type=offline&"
-        f"prompt=consent&"
-        f"state={user_id}"
-    )
+    return f"{GOOGLE_AUTH_URL}?{urlencode({
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'scope': SCOPES,
+        'access_type': 'offline',
+        'prompt': 'consent',
+        'state': state,
+    })}"
 
 
 def exchange_google_code(code: str, redirect_uri: str) -> dict:
@@ -113,7 +113,7 @@ def _refresh_token(session: Session, token: CalendarToken) -> CalendarToken:
     resp.raise_for_status()
     data = resp.json()
     token.access_token = data["access_token"]
-    token.expires_at = datetime.utcnow() + timedelta(seconds=data.get("expires_in", 3600))
+    token.expires_at = utc_now() + timedelta(seconds=data.get("expires_in", 3600))
     session.add(token)
     session.commit()
     session.refresh(token)
@@ -126,7 +126,7 @@ def _get_valid_token(session: Session, user_id: str, provider: str = "google") -
     token = session.get(CalendarToken, token_id)
     if not token:
         return None
-    if token.expires_at <= datetime.utcnow():
+    if token.expires_at <= utc_now():
         token = _refresh_token(session, token)
     return token
 

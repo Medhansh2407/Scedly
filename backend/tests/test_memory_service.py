@@ -106,7 +106,24 @@ class TestGetRelevantMemories:
         assert result[1].content == "Gym sessions are typically 90 minutes"
         assert result[1].score == 0.85
 
-        mock_client.search.assert_called_once_with(query="when do I work out", user_id="user-123")
+        mock_client.search.assert_called_once_with(
+            query="when do I work out", filters={"user_id": "user-123"}
+        )
+
+    @pytest.mark.asyncio
+    async def test_supports_mem0_v2_wrapped_search_response(self, monkeypatch):
+        monkeypatch.setenv("MEM0_API_KEY", "m0-valid-key")
+        mock_client = MagicMock()
+        mock_client.search.return_value = {
+            "results": [
+                {"id": "m1", "memory": "Morning focus", "score": 0.9}
+            ]
+        }
+
+        with patch("app.services.memory_service._get_client", return_value=mock_client):
+            result = await get_relevant_memories("user-123", "focus")
+
+        assert [memory.content for memory in result] == ["Morning focus"]
 
     @pytest.mark.asyncio
     async def test_returns_empty_on_search_exception(self, monkeypatch):
